@@ -42,6 +42,21 @@ claude plugin install plimslop@plimslop
 claude plugin details plimslop@plimslop     # 1 skill, 2 hooks
 ```
 
+### Running the commands after a plugin install
+
+The hooks and the skill work immediately, but `plimslop.mark`, `plimslop.preflight` and
+`plimslop.reader` are Python modules in the plugin cache, not on your path. Add this to your shell
+profile:
+
+```sh
+export PLIMSLOP_HOME="$(ls -d ~/.claude/plugins/cache/plimslop/plimslop/*/ 2>/dev/null | tail -1)"
+alias plimslop-reader='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.reader'
+alias plimslop-mark='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.mark'
+alias plimslop-preflight='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.preflight'
+```
+
+From a git checkout none of this is needed — run `python3 -m plimslop.<command>` from the repo root.
+
 Two things worth knowing before you do that:
 
 - **A local install is a copy, not a link.** The plugin cache holds a frozen `0.1.0/`, so edits to
@@ -65,6 +80,19 @@ Both thresholds are printed on every run and labelled `PROPOSED`, because no pow
 stands behind either yet. A floor is demoted only on an equivalence bound, never on a failure to
 find a difference: otherwise a thin corpus demotes a floor by being underpowered, which is exactly
 the error that produced the rule this project replaces.
+
+## Logging the gate
+
+The pre-flight is only worth anything if its circumventions are countable:
+
+```
+python3 -m plimslop.preflight --shape originating --tokens 190000 --decision proceed
+```
+
+**Declaring `proceed` above the floor is recorded as `overridden`**, whatever you called it — the
+declared value is kept beside it. A model can rationalise past a threshold; it cannot rationalise
+the arithmetic out of the log. If the override rate turns out high, that is evidence the tiers are
+wrong, not that the user is undisciplined.
 
 ## Marking rework
 
@@ -168,7 +196,7 @@ in the design document for the three inherited ideas and what they were called.
 | `LICENSE` | Apache-2.0, canonical text. See § Licensing for the prose split |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `plimslop/` | the code — two hooks, measurement, tiers, corpus, the marker command, the reader. 89 tests |
+| `plimslop/` | the code — two hooks, measurement, tiers, corpus, the marker and pre-flight commands, the reader. 102 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |

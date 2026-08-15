@@ -24,9 +24,9 @@ built and published. **None of it is validated** — that part is not a coding t
 | `BRIEF.md` | history only. The originating handoff, the prior-art sweep, and **all four naming sweeps**, including the two that rejected names. The rejections are the evidence for the criterion |
 | `skills/managing-context-budget/SKILL.md` | the shipped skill. Two procedures, not three |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios and their results. Fixtures in `tests/fixtures/` |
-| `plimslop/` | the code: `measure`, `tiers`, `report`, `corpus`, `hook`, `stop`, `mark`, `reader` |
+| `plimslop/` | the code: `measure`, `tiers`, `report`, `corpus`, `hook`, `stop`, `mark`, `reader`, `preflight` |
 | `hooks/` | `hooks.json` and two launchers that locate the package relative to themselves |
-| `tests/` | 90 tests. `python3 -m unittest discover -s tests -t .` before believing anything below |
+| `tests/` | 102 tests. `python3 -m unittest discover -s tests -t .` before believing anything below |
 | `~/.claude/plimslop/corpus.jsonl` | **the live corpus.** 19 records when this was written and one more every turn, so count it rather than trust that. Not in the repo and must never be — it holds project paths and filenames |
 | `git log` | commit messages carry the reasoning for each decision, including the reversed ones |
 | `docs/unreviewed/reader-detailed-design.md` | **quarantined, see §4.** Not approved, not reviewed |
@@ -50,6 +50,8 @@ built and published. **None of it is validated** — that part is not a coding t
 | Tests may never touch the real corpus | `tests/__init__.py`, asserted by `tests/test_corpus_isolation.py` |
 | Apache-2.0 for code, CC-BY-4.0 for prose | `LICENSE`, `README.md` § Licensing. Recorded nowhere else — a decision, not a settlement |
 | Published public on the owner's explicit instruction | commit `738f30d` |
+| A declared `proceed` above the floor is recorded as `overridden`, whatever the caller called it | `plimslop/preflight.py`; `SKILL.md` step 5. The declared value is kept beside it |
+| The skill now names both logging commands | `SKILL.md` step 5 and § When work has to be redone |
 
 ## 4. Unverified or assumed
 
@@ -80,6 +82,10 @@ Reading this section does not promote anything in it.
 - **`statusline-context-gauge.py` is recoverable from git history** (`777179f`…`d5c194f`) though the
   sweep said not to publish it. Left knowingly: purging rewrites all SHAs and breaks the commit
   citations in §3 and `BRIEF.md`. That reasoning was sound when nothing was public and is weaker now.
+- **The commands are not on anyone's PATH after a plugin install.** `mark`, `preflight` and
+  `reader` are modules in the plugin cache; the hooks and skill work immediately but those three
+  need `PYTHONPATH`. `README.md` § Installing gives aliases, tested against a real install. A
+  proper entry point (`__main__.py` or a console script) was not built.
 - **`docs/unreviewed/reader-detailed-design.md` (49KB) is not trustworthy** and is now public. It was
   produced by subagents running an invalid test scenario and racing on one file. Two ideas in it
   looked good — reframing the refusal rule from sample size to interval width, and an argument that
@@ -99,16 +105,19 @@ Not a fork: everything points at this checkout, so editing the repo changes the 
 
 ## 5. Next concrete action
 
-**Make the skill write `preflight` records.** It is the last piece of the designed loop that does not
-exist: §7 says the skill logs every gate evaluation *including overrides*, and nothing does. The two
-`preflight` records in the corpus were written by hand. Without them the override rate — which §7
-calls "the honest measure of whether the tiers are usable" — cannot be computed at all, and a gate
-whose circumvention nobody can measure is a gate that will be circumvented.
+**Use it, and mark rework when you find it.** There is no next build step. The designed loop is
+closed: the hook measures, the skill gates and logs, `mark` records what had to be redone, the
+reader refuses to draw conclusions until there is something to draw them from.
 
-It is small: a `plimslop.preflight` command in the shape of `mark.py`, plus a step in `SKILL.md`
-telling the model to run it. Note `SKILL.md` currently does not mention the marker command either.
+What the corpus needs now is elapsed time and honest marking — which is the part no amount of code
+substitutes for, and the part most easily avoided by building more code. The first question it can
+eventually answer is the one the project exists for: **is 50K anywhere near right, and is 150K
+defensible at all?** Neither can be touched at this *n*.
 
-**After that, the project's next move is elapsed time, not code.** The corpus was at 19 records when
-this was written and every reader view correctly refuses to say anything. Nothing about the floors can be argued until
-the thing has run for weeks and rework has actually been marked. Building more tooling in the
-meantime is the most tempting way to avoid finding out whether the tool is right.
+Two small things, if hands are idle and a fresh session wants them:
+
+- **The commands need a proper entry point.** After a plugin install they are only reachable via
+  `PYTHONPATH`; see §4.
+- **`docs/unreviewed/` holds one unimplemented idea worth deciding on** — that no trend should ever
+  be fitted. `reader.py` fits none, but by omission rather than decision. Making it explicit would
+  close the gap between what the tool does and what anyone can tell it does.

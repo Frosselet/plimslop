@@ -24,6 +24,20 @@ Do this **before** the work, not as a warning afterwards.
 3. **Compare to the floor for that shape.**
 4. **At or above the floor: do not start.** Write the handoff, and say the work needs a fresh
    session.
+5. **Log the decision** — including when you proceed anyway:
+
+   ```
+   python3 -m plimslop.preflight --shape originating --tokens 190000 --decision proceed
+   ```
+
+   Declaring `proceed` above the floor is recorded as `overridden`, whatever you called it. That
+   is deliberate: the override rate is the only honest measure of whether these floors are usable,
+   and a gate whose circumvention nobody can count is a gate that will be circumvented. If the rate
+   turns out high, the tiers are wrong — not you.
+
+   If `python3 -m plimslop.preflight` does not resolve, the package is not on your path — it is in
+   the plugin cache. The README's § Installing gives the one-line alias. **A logging step you
+   cannot run is worse than none, because it looks done.**
 
 | shape | what it is | floor |
 | --- | --- | --- |
@@ -64,6 +78,23 @@ Write these parts, in this order:
 **Required in every handoff:** part 3 states a location for each decision, and part 4 exists even
 when empty. A handoff without them is a condensed secondary source, which is the artefact that gets
 consumed as fact one session later.
+
+## When work has to be redone
+
+The floors above are asserted, not proven, and the only thing that can ever argue with them is a
+record of what actually got reworked. When you find work that had to be redone — reverted, rewritten,
+abandoned — mark it **at the moment you discover it**, not when it was produced:
+
+```
+python3 -m plimslop.mark path/to/file.py --note "rewritten from scratch"
+python3 -m plimslop.mark "the approach I abandoned"        # no artefact is fine
+```
+
+It maps the target back to the turn that produced it via `git blame` and the turn log. This is a
+statement of **history**, not a judgment of quality: you are recording that something was redone,
+not deciding whether it was any good. Markers it cannot attribute are still recorded.
+
+Same path caveat as step 5 above.
 
 ## Common mistakes
 
