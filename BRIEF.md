@@ -5,7 +5,8 @@ session that had the idea (2026-08-15, working in `iladub`), written so a fresh 
 resume without re-deriving anything.
 
 **The repository name `context-discipline` is PROVISIONAL** and was chosen only so a directory
-could exist. See § First actions — do not push under this name before the naming check runs.
+could exist. The naming check has now run and **the name should be changed before any push** —
+see § Task 1 results.
 
 ---
 
@@ -24,14 +25,88 @@ it is the actual product** — the gauge is the visible part, the protocol is th
 
 ## First actions, in order
 
-1. **Naming check, before anything is pushed.** PyPI + GitHub repo collision + a web search
-   qualified by domain ("+ claude code", "+ context", "+ agent"). "Free on PyPI" is necessary and
-   *not* sufficient; the check that matters is no same-domain prior art.
-2. **Prior-art sweep on the gauge specifically.** Context-usage status lines for Claude Code are a
-   well-trodden idea. **A real possible outcome of this sweep is that the gauge should not be
-   published at all** and this repo ships only the protocol, pointing at someone else's gauge.
-   Decide that before designing around a gauge you may not need to own.
-3. Only then: brainstorm the skill.
+1. ~~**Naming check, before anything is pushed.**~~ **DONE 2026-08-15** — § Task 1 results.
+2. ~~**Prior-art sweep on the gauge specifically.**~~ **DONE 2026-08-15** — § Task 1 results.
+   The anticipated outcome is the one that occurred: the gauge should not be published.
+3. Only then: brainstorm the skill. ← **next**
+
+---
+
+## Task 1 results (swept 2026-08-15)
+
+### Naming: `context-discipline` fails, and not on collision
+
+| check | result |
+| --- | --- |
+| PyPI `context-discipline` / `context_discipline` / `contextdiscipline` | all 404 — free |
+| GitHub exact repo name | no collision |
+| same-domain prior art | **fails** |
+
+PyPI is clear and no repo carries the name, but the criterion this file set — *no same-domain prior
+art* — is not met. "Context discipline" is already generic descriptive vocabulary in this exact
+domain, appearing in the **descriptions** of unrelated projects: `anothervibecoder-s/claudecode-harness`
+(★223, "Context discipline, subagents…"), `Fearvox/multica-ultimate-workbench` (★26),
+`kmshihab7878/claude-code-setup` ("context-budget discipline"), `gregorriegler/yak-shaving-kata`
+("Kata to practice context discipline"). Nearest named things: `symbolicmatter/llm-context-discipline`
+(★0) and `geopolitis/cdad` = "Context-Disciplined Agent Development".
+
+So the name is not taken — it is **unclaimable**. It reads as a category label rather than a product
+and will never be findable by search. Rename before pushing.
+
+### The gauge: do not publish it
+
+Unambiguous. 736 GitHub repos match "claude code statusline context". The field:
+
+- `jarrodwatts/claude-hud` — **★27,401** — context usage, active tools, running agents, todos
+- `henchmarketing-rgb/headroom` — ★68 — *"Know your headroom. Context window usage bar for Claude
+  Code."* Same product, same framing
+- `stephenleo/cship` ★414, `leeguooooo/claude-code-usage-bar` ★349,
+  `ilia-pluzhnikov/claude-code-statusline` ★104, and ~20 more at ★13–50, all shipping context bar +
+  rate limits + git state
+
+The prototype's measured findings (`COLUMNS` authoritative; preferring
+`context_window.total_input_tokens`) are implementation details, not differentiation — several of
+these read the same payload. Keep the gauge as a personal script; point users at claude-hud or
+headroom.
+
+### The protocol: explored, but not landed
+
+The whole cohort sits at ★0–3.
+
+- **`vsrox-cliqq/context-governor`** (★3) — closest to the entire product. Measures every tool call,
+  **ends the session at 60% of the window**, boots the next from a structured handoff ledger
+- **`reganomika/HighWater`** (★2) — `Stop` hook forcing a task-boundary checkpoint at **55% / 88%**,
+  per-model; recalibrates the hard mark downward the first time it witnesses a real auto-compaction
+- **`silvesterdivas/context-engineer`** (★0) — Budget Zones skill (GREEN/YELLOW/ORANGE/RED),
+  Degradation Detection skill, Fresh Context Pattern (TASK.md + PROGRESS.md handoff)
+- `Artim-Nayas/token-manager` (★1) "tiered behavioral guidance"; `leaflessbranch/cc-pacekeeper` (★1)
+  self-pacing, thresholds, resumable checkpoints
+
+**Every one of them ships a percentage constant.** § The load-bearing finding is therefore not
+iladub's local error — it is the field's shared error. On a 1M window HighWater's 55% is 550K
+tokens; NoLiMa found 11 of 13 models below half their baseline at **32K**. Chroma's 18-model study
+found steady decline from the start rather than a cliff, which undercuts the threshold framing
+everyone is using, including R76's.
+
+### What the sweep leaves unoccupied
+
+1. **Absolute-token denomination.** Nobody found does this.
+2. **Measure-your-own-curve.** HighWater's auto-compaction recalibration is the cohort's only
+   adaptive mechanism, and it calibrates to a *harness event*, not to work quality. No one logs
+   tokens-at-turn against outcome markers.
+3. **Staleness as a separate mechanism** (§ Three mechanisms). Every tool found treats "context is
+   big" as the only failure mode, so all prescribe a fresh session — which does nothing for a stale
+   fact consumed as truth.
+
+### Carried into the scope decision
+
+`context-governor` and `HighWater` are close enough that this repo must state plainly what it does
+that they do not, or it is a sixth entrant to a category with no winner. The ★0–3 ceiling across the
+whole protocol cohort is its own signal — either the idea does not get adoption, or nobody has
+cracked packaging it. That bears on "disseminate", not on the one-user MVP.
+
+Sweep method: PyPI JSON API; `gh api search/repositories` on five queries; two web searches. Star
+counts are as of 2026-08-15.
 
 ## What already exists, and exactly where
 
@@ -130,7 +205,11 @@ A short brainstorm still earns its keep — the open questions below are real.
 
 ## Scope discipline
 
-MVP is gauge + hook + skill working for **one user**. "Disseminate it" is a separate decision that
+MVP is gauge + hook + skill working for **one user** — though § Task 1 results puts the *published*
+composition back in play (gauge almost certainly out; hook's injection mechanism is also largely
+commodity in that cohort). Scope not yet re-decided.
+
+"Disseminate it" is a separate decision that
 should follow the prior-art sweep *and* enough collected turn-by-turn data to say something honest
 about where the line sits. Publishing the discipline is defensible today; publishing a threshold
 is not.
@@ -153,3 +232,23 @@ Unrelated and still queued in iladub: the **R87 plan** (spec written and committ
 - Positional Failures in Long-Context LLMs — https://arxiv.org/pdf/2605.23170
 - Context Discipline and Performance Correlation — https://arxiv.org/html/2601.11564v1
 - Context Rot, RAG, and Long Context — https://glasp.co/articles/context-rot-rag-long-context-hybrid
+
+Added by the 2026-08-15 sweep (same caveat — vet before citing publicly):
+
+- Context Rot: Why LLMs Degrade as Context Grows — https://www.morphllm.com/context-rot
+- Context Engineering: Why More Tokens Makes Agents Worse — https://www.morphllm.com/context-engineering
+- The Context Rot Problem: Why AI Coding Agents Get Worse As They Work —
+  https://empromptu.ai/resources/context-rot-progressive-prompt-ephemerality
+- Evaluating Context Compression for AI Agents (Factory.ai) — https://factory.ai/news/evaluating-compression
+- 1M Tokens Won't Save Your Engineering Standards — https://straion.com/blog/1m-tokens-wont-save-your-engineering-standards/
+- Claude Code Context Window / context management (claudefa.st) —
+  https://claudefa.st/blog/guide/mechanics/context-management
+- `skillListingBudgetFraction` computed against a fixed ~200K baseline, not the real window
+  (anthropics/claude-code#57941) — https://github.com/anthropics/claude-code/issues/57941
+  *Relevant: the harness itself makes the percentage-vs-absolute error this repo is about.*
+
+Prior art referenced in § Task 1 results:
+
+- https://github.com/jarrodwatts/claude-hud · https://github.com/henchmarketing-rgb/headroom
+- https://github.com/vsrox-cliqq/context-governor · https://github.com/reganomika/HighWater
+- https://github.com/silvesterdivas/context-engineer
