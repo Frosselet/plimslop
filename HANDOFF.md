@@ -75,10 +75,12 @@ Reading this section does not promote anything in it.
   that no trend should ever be fitted — but nothing in it has been checked. Treat as a source of
   proposals, not decisions.
 - **Licensing undecided.** The reader's minimum *n* undecided.
-- **The origin repo (`iladub`) still runs its own percentage-based hook** from
-  `$CLAUDE_PROJECT_DIR/scripts/context_budget.py`. Deliberately untouched so nothing goes
-  unmeasured before the replacement is installed. `hooks/context_budget.py` here is a
-  byte-identical reference copy; do not edit it, or it becomes a fork.
+- **The origin repo (`iladub`) no longer runs its own percentage-based hook.** Its
+  `.claude/settings.json` existed only to register that hook and was deleted on 2026-08-15, once
+  the replacement was installed, so the two would not both fire there. The deletion is staged but
+  **not committed** in that repo. `iladub/scripts/context_budget.py` is deliberately kept — it is
+  the original of the byte-identical reference copy at `hooks/context_budget.py` here, and
+  deleting it would strand that provenance. Do not edit either, or one becomes a fork.
 
 ## 5. Next concrete action
 
