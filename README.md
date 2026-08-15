@@ -73,6 +73,8 @@ in the design document for the three inherited ideas and what they were called.
 | --- | --- |
 | `BRIEF.md` | the originating handoff, plus the naming check and prior-art sweep |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |
+| `skills/managing-context-budget/SKILL.md` | **the skill — written and tested.** The one shipped part that exists |
+| `skills/managing-context-budget/TESTS.md` | the pressure scenarios it was written against, and their results |
 | `hooks/context_budget.py` | **inherited prototype, unmodified.** Percentage-denominated; superseded by the design. Kept for reference and diffing, not for use |
 | `statusline-context-gauge.py` | prototype gauge. **Not to be published** — see the sweep. Personal script only |
 

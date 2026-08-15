@@ -175,16 +175,37 @@ Written **as pointers, not conclusions**:
 **Named anti-pattern: summarising the primaries into the handoff.** That manufactures precisely the artefact behind the recorded
 incidents — a condensed secondary source, written by a tired session, read as fact by a fresh one.
 
-### 4.4 Resumption
+### 4.4 Resumption — TESTED AND CUT
 
-The handoff is a pointer, not a source.
+**This procedure does not ship.** It was pressure-tested before the skill was written and the
+failure it defends against did not occur.
 
-1. Read it.
-2. Before acting on anything load-bearing, open the primary it points at.
-3. The quarantine section stays unverified; reading it does not promote it.
-4. **Handoff and primary disagree → the primary wins, and the handoff is corrected.**
+Four subagent runs with no guidance were given a handoff that was wrong about the value to change,
+and in two of them also wrong about which file to edit and carrying a closing instruction that
+would have blocked the correct answer. **All four opened the primary, caught the contradiction,
+made the correct edit, and escalated the conflicting instruction rather than resolving it alone.**
+This held on the harder fixture, where nothing in the code hinted that the handoff was wrong and
+trusting it was the path of least effort.
 
-Rule 4 makes the protocol self-healing, and is the rule that would have caught the recorded incidents.
+The credulous reader this section was designed for did not appear. The failure is entirely on the
+**write** side — see §4.3, where 2 of 2 unguided runs produced finality claims and explicit
+do-not-verify instructions. That reframes the recorded incidents: an index line consumed as fact is
+not primarily a reading failure, it is a writing failure that happened one session earlier.
+
+The reasoning is kept below because it remains the correct remedy *if* a corpus ever shows
+resumption failing. It should not be re-added from first principles.
+
+> The handoff is a pointer, not a source.
+
+> 1. Read it.
+> 2. Before acting on anything load-bearing, open the primary it points at.
+> 3. The quarantine section stays unverified; reading it does not promote it.
+> 4. **Handoff and primary disagree → the primary wins, and the handoff is corrected.**
+>
+> Rule 4 makes the protocol self-healing, and is the rule that would have caught the recorded
+> incidents.
+
+Note that unguided agents did all four of these unprompted.
 
 ### 4.5 Subagent delegation is a remedy, not a loophole
 
@@ -309,10 +330,36 @@ the project: the prior rule exists because one session's observation was promote
 will happily draw a confident curve through four points is a machine for manufacturing more of them.
 The refusal is the product's central claim made executable.
 
+**Detailed design: `2026-08-15-reader-detailed-design.md`.** This section settles what the reader
+*is*; that document settles what it *does* — exact output for all three views, the attribution
+algorithm step by step, the refusal rule, and the `session_summary` rollup mechanics. It is the
+document to implement from, and it adds three decisions this section does not make plus one
+correction to §10, all of which want review before coding starts:
+
+- **the rate's denominator is the *producing turn*** — a turn with a successful `Write`/`Edit` —
+  rather than the turn, the session or the pre-flight record. Flagged there as the most
+  consequential and most arguable choice in the reader
+- **the refusal is two thresholds, not one** — `n_report` to state a rate at all, `n_trend` to plot
+  or compare it. Both *proposed*, and the tool prints the power arithmetic that argues against them
+- **`CONTRADICTS` requires an equivalence bound**, not merely a failure to find a difference, so a
+  thin corpus cannot demote a floor by being underpowered — the prior rule's error, inverted
+- **§10's post-compaction test should read the explicit `compact_boundary` transcript record**
+  rather than infer compaction from a discontinuity in the totals
+
 ## 8. Failure modes and non-goals
 
 **Overriding rule: the tool is never the reason a session fails.** Unreadable transcript, malformed
 payload, corpus write failure, permissions — all return silently. Existing hook behaviour; it stays.
+
+**Compaction is stated exactly in the transcript — no heuristic needed.** Verified 2026-08-15
+against real transcripts: a compaction writes a record with `type: "system"`,
+`subtype: "compact_boundary"`, carrying `compactMetadata` with `trigger` (`auto` / manual),
+`preTokens`, `postTokens`, `cumulativeDroppedTokens`, `durationMs` and the preserved-segment UUIDs.
+One observed instance: `preTokens` 1,000,577 → `postTokens` 24,952, `cumulativeDroppedTokens`
+975,625. So the hook reads the event rather than inferring it from a discontinuity, and
+`cumulativeDroppedTokens` gives something better than a flag — a running total of how much of the
+session's own history has been discarded, which is a more honest measure of a resumed session's
+standing than its current token count.
 
 **Compaction resets the number but not the damage.** When auto-compact fires, total tokens drop
 sharply and every gate re-opens — but a compacted session is not a fresh one. Compaction is lossy
@@ -383,7 +430,7 @@ because §8's overriding rule is the one guarantee that must hold absolutely:
 - unsatisfiable-gate degradation fires when baseline ≥ floor
 - attribution resolves explicit, git-derived, and unattributed cases, and stamps confidence correctly
 - **reader refuses to plot below the stated *n*** — this deserves a test of its own
-- post-compaction flag set when totals drop discontinuously
+- post-compaction flag set from the transcript's compact_boundary record
 
 **Skill — markdown, not unit-testable.** Its verification is behavioural, and the corpus is its own
 test harness: `preflight` records show whether the model actually classified the shape and stated
@@ -397,6 +444,38 @@ in the shipped text. For originating: a corpus with adequate *n* showing no elev
 rate for originating work begun above 50K, stratified by baseline band, demotes the 50K figure. If
 no such observation can be specified for a tier, that tier is not an assertion but a preference and
 should be labelled one.
+
+### 10.1 What was actually tested (2026-08-15)
+
+The skill was written TDD-style: baselines first, skill second, re-run third.
+
+| behaviour | baseline (no skill) | with skill |
+| --- | --- | --- |
+| pre-flight gate | **2/2 failed** — context never considered at all | **2/2 passed** |
+| handoff authoring | **2/2 failed** — finality claims, explicit do-not-verify instructions | **2/2 passed** |
+| resumption | **4/4 passed** — nothing to fix | not shipped (§4.4) |
+
+Both GREEN arms converged: reps produced near-identical structure rather than diverging
+interpretations, which is the signal that wording binds.
+
+**Limits of this evidence, stated so it is not oversold:**
+
+- **Two reps per arm.** The methodology asks for five or more. Separation was total and convergence
+  strong, but the sample is thin, and the claim it supports is only the binary one — *guidance
+  changes behaviour*.
+- **The token figure was asserted, not experienced.** Subagents ran at roughly 35K of real context
+  while being told they were at 190K. These runs therefore test whether an agent *honours a stated
+  budget*. **They cannot validate the 50K floor, or any floor.** Only the corpus (§7) can, which is
+  the reason §7 exists.
+- **The gate does not fix missing information.** One GREEN run put it exactly: *"a fresh session
+  with a clean window would have invented an answer here just as readily as I would have."* The
+  fixture's README and its docstring contradicted each other about where cleanup lived; no context
+  budget repairs that. deadweight addresses degraded reasoning, not absent facts, and the shipped
+  documentation must not imply otherwise.
+- **Six earlier runs were discarded** for test-design faults: a fabricated premise (a spec demanded
+  for a codebase that did not exist), and contamination (subagents inherit the parent's working
+  directory, so they read this repo's own design document and applied it — one cited §4.3 and §4.4
+  by number). Baselines must run in neutral, self-contained fixtures.
 
 ## 11. Open items
 
