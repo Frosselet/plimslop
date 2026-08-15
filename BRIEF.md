@@ -1,0 +1,155 @@
+# BRIEF — read this first
+
+**Status: SCAFFOLD ONLY.** Nothing here is designed yet. This file is the handoff from the
+session that had the idea (2026-08-15, working in `iladub`), written so a fresh session can
+resume without re-deriving anything.
+
+**The repository name `context-discipline` is PROVISIONAL** and was chosen only so a directory
+could exist. See § First actions — do not push under this name before the naming check runs.
+
+---
+
+## What this is meant to become
+
+A small, installable set of three things that keep a coding-agent session honest about its own
+context budget:
+
+1. **A gauge** — a right-aligned status-line bar showing context used, so the human can see it.
+2. **A hook** — the only part that can actually reach the model, injecting the figure each turn.
+3. **A skill** — the procedure: a pre-flight check before starting costly work, a handoff
+   protocol, and a resumption protocol.
+
+The gauge and hook already exist in prototype (§ What already exists). **The skill does not, and
+it is the actual product** — the gauge is the visible part, the protocol is the valuable part.
+
+## First actions, in order
+
+1. **Naming check, before anything is pushed.** PyPI + GitHub repo collision + a web search
+   qualified by domain ("+ claude code", "+ context", "+ agent"). "Free on PyPI" is necessary and
+   *not* sufficient; the check that matters is no same-domain prior art.
+2. **Prior-art sweep on the gauge specifically.** Context-usage status lines for Claude Code are a
+   well-trodden idea. **A real possible outcome of this sweep is that the gauge should not be
+   published at all** and this repo ships only the protocol, pointing at someone else's gauge.
+   Decide that before designing around a gauge you may not need to own.
+3. Only then: brainstorm the skill.
+
+## What already exists, and exactly where
+
+| thing | path | notes |
+| --- | --- | --- |
+| the gauge (live copy) | `~/.claude/statusline-context-gauge.py` | wired via `statusLine` in `~/.claude/settings.json` |
+| the gauge (repo copy) | `./statusline-context-gauge.py` | copied here 2026-08-15; **the two are now forks — reconcile before editing either** |
+| the hook | `<iladub>/scripts/context_budget.py` | `UserPromptSubmit` hook in iladub's `.claude/settings.json` |
+
+`<iladub>` = `/Volumes/WD Green/dev/git/iladub`.
+
+Both read the same figure: `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`.
+The gauge prefers the status-line payload's `context_window.total_input_tokens` (present in Claude
+Code 2.1.226; verified to equal that sum) and falls back to scanning the transcript tail. It
+imports `HANDOFF_PCT` / `STOP_PCT` / `WINDOW` from `context_budget.py` when `CLAUDE_PROJECT_DIR`
+points at iladub, so the two cannot drift there.
+
+Measured while building the gauge, worth not rediscovering:
+- The status-line command runs with **no tty on any descriptor** but **with `COLUMNS` set** to the
+  real width. `COLUMNS` is authoritative; check it first.
+- The payload carries `context_window`, `cost`, `rate_limits`, `effort`, `model`, `workspace.repo`
+  and more — a lot is available for free without reading any file.
+
+## The load-bearing finding: the 40% rule is denominated in the wrong unit
+
+iladub's `CLAUDE.md` records R76: *never work past 40% of the context window*, with 30% as the
+handoff mark. **Do not ship that number.** What was found on 2026-08-15:
+
+**Its evidence is weak.** One session (2026-08-09), uncontrolled, self-assessed, confounded — late
+sessions also hold the harder residual work. A real signal, but not evidence for a threshold at 40%.
+
+**Its unit is wrong, and the error grows with window size.** The literature anchors degradation to
+*absolute* token counts, not to a fraction of the window (a commonly cited figure: serious loss at
+~50K tokens inside a 200K window). So a percentage rule becomes monotonically more permissive as
+windows grow:
+
+| window | R76's 40% line | absolute tokens |
+| --- | --- | --- |
+| 200k | 40% | 80k |
+| **1M (the setup R76 was written on)** | **40%** | **400k** |
+
+The 2026-08-09 observation that "the later 71% of the session produced five blocked specs" is fully
+consistent with degradation having begun *hundreds of thousands of tokens earlier*, with 40% merely
+being where it became noticeable enough to name. **The rule is probably far too loose, not too
+strict.**
+
+Corollary for this repo's design: **denominate the budget in absolute tokens; show the percentage
+only as display.**
+
+## Three mechanisms — and only two are about length
+
+1. **Attention dilution** — more candidate material, more chance of attending to the wrong thing.
+2. **Positional burial** — the U-shaped "lost in the middle" effect; a fact established mid-session
+   is weaker than one at either end.
+3. **Staleness — NOT a context-length effect at all.** This one dominates the real recorded
+   incidents in iladub: a residue index line consumed as fact (twice, R87 and R88), a code comment
+   saying "widened on this branch only" that had long since shipped, and — found the same day — a
+   residue row whose own closing *instruction* was wrong. A fresh session does not fix any of
+   these; **opening the primary source does.** Keep this separate in the design or the skill will
+   prescribe the wrong remedy.
+
+Also load-bearing: **multi-step reasoning degrades much earlier and harder than factual
+retrieval.** Writing a spec or a plan is multi-step reasoning, which is why "the model can still
+recall things fine" is not evidence that it is safe to design.
+
+## The design principle that follows
+
+Do not ship a constant. Ship the discipline, and **make the tool collect the evidence**: the hook
+already measures every turn, so log tokens-at-turn against outcome markers and let a user see their
+own curve. That converts an ungrounded constant into something promotable on evidence — which is
+iladub's own assert / propose / promote epistemics applied to its own tooling, and the honest
+answer to "is 40% right?": *measure it, don't inherit it.*
+
+## Process decision (settled — do not re-litigate)
+
+**Brainstorm yes. Spec no. Plan no.** iladub's spec→plan ceremony is calibrated to product code with
+SHACL membranes, derivation queries and falsifiable oracles, where five defects were once found in a
+plan's own text. A skill is markdown with no membrane and no oracle; the ceremony would be form
+without cause. Use `superpowers:writing-skills` when authoring.
+
+A short brainstorm still earns its keep — the open questions below are real.
+
+## Open design questions
+
+- **Is the pre-flight check even buildable as conceived?** Estimating "how much context will this
+  task consume" before running it invites a tuned constant, which iladub's §8 gate treats as prima
+  facie evidence that a decision belongs elsewhere. The honest form may be far simpler — a rule
+  about *task shape* ("a loop, a spec or a plan starts below N tokens, full stop") rather than a
+  cost model. **Attack this premise before designing around it.**
+- Trigger: model-invoked by description, or the hook injecting a pointer to the skill?
+- Scope: personal (`~/.claude/skills/`) or project skill? The gauge went user-scope so it survives
+  branch switches; the same argument probably applies.
+- Should `context_budget.py`'s injected prose be replaced by a pointer at the skill?
+- Licensing: not decided. iladub uses Apache-2.0 for code and CC-BY-4.0 for vocabulary/spec; this
+  repo is separate and the choice is open.
+
+## Scope discipline
+
+MVP is gauge + hook + skill working for **one user**. "Disseminate it" is a separate decision that
+should follow the prior-art sweep *and* enough collected turn-by-turn data to say something honest
+about where the line sits. Publishing the discipline is defensible today; publishing a threshold
+is not.
+
+## Note on continuity
+
+Auto-memory is **per project directory**. The notes from the originating session live under
+`~/.claude/projects/-Volumes-WD-Green-dev-git-iladub/memory/` and **will not load in this repo.**
+This file is deliberately self-contained for that reason. The iladub-side note is
+`context-discipline-skill-idea.md`.
+
+Unrelated and still queued in iladub: the **R87 plan** (spec written and committed on branch
+`loop-escalation-is-a-decision`). Unaffected by this work.
+
+## Sources (single search, 2026-08-15 — NOT a literature review; vet before citing publicly)
+
+- Context Rot: Why Long-Context LLMs Degrade — https://www.tmls.nyc/research/context-rot-mechanistic
+- Context Length Alone Hurts LLM Performance Despite Perfect Retrieval (EMNLP Findings 2025) —
+  https://aclanthology.org/2025.findings-emnlp.1264.pdf
+- Positional Failures in Long-Context LLMs — https://arxiv.org/pdf/2605.23170
+- Context Discipline and Performance Correlation — https://arxiv.org/html/2601.11564v1
+- Context Rot, RAG, and Long Context — https://glasp.co/articles/context-rot-rag-long-context-hybrid
