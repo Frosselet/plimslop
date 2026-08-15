@@ -73,9 +73,35 @@ call, for the reason recorded above plus one not anticipated here: `deadweight` 
 precisely what a Plimsoll line measures, so the two names describe the same thing from opposite
 ends, the capacity and the mark. `deadweight`'s own sweep result stands unedited above: it was a
 sound name, and the decision that replaced it was preference, not a defect found. **The plimsoll
-sweep has NOT been re-run** — no PyPI, GitHub or npm check has been made against this name. It was
-recorded here as "free everywhere, no prior art" when it was the runner-up, and that claim is now
-load-bearing without having been re-verified.
+sweep was then run, 2026-08-15, and **`plimsoll` FAILS the same criterion `context-discipline`
+failed.**
+
+| check | result |
+| --- | --- |
+| PyPI `plimsoll` | 404 — free |
+| npm `plimsoll` | **taken** — dormant Sails.js Postgres adapter, last published 2020 |
+| GitHub exact repo name | **20+ repos**, none with traction (max ★10) |
+| same-domain prior art | **fails, worse than `deadweight` did** |
+
+The runner-up note said "free everywhere, no prior art". That was wrong on both counts. Four repos
+named exactly `plimsoll` are LLM/agent tooling, all created within the last ten weeks:
+
+- `CryptoJym/plimsoll` (2026-06-10) — *"The load line for your AI spend — local-first telemetry for
+  Claude Code & Codex that joins token usage to shipped outcomes. Open core, privacy-first."*
+  **That is this product's pitch, metaphor and all.**
+- `Raghu23-dev/plimsoll` (2026-08-06) — *"Load and capacity harness for LLM agent services. Finds
+  the safe load line."*
+- `theo-ai-lab/plimsoll` (2026-06-01), `boaglio/plimsoll` — *"Non Official Claude Usage GUI"*
+- adjacent: `mtnygard/plimsoll` — capacity analysis for software systems
+
+So the load-line metaphor is **already generic vocabulary for AI capacity tooling**, reached for
+independently by several people in the same quarter. That is precisely why `context-discipline`
+was rejected: not taken, but unclaimable. `deadweight`'s own sweep, by contrast, found no agent- or
+context-tooling prior art at all.
+
+Nothing here blocks the name — no competitor has traction. It is a findability judgment, and it is
+now an informed one. **`deadweight` remains the only name in this project that has passed the
+criterion.**
 
 ### The gauge: do not publish it
 

@@ -48,9 +48,12 @@ carrying the evidence grade that supports it.
 
 **Renamed twice on 2026-08-15: `context-discipline` → `deadweight` → `plimsoll`.** The last was
 the owner's call — the metaphor survives (deadweight tonnage is what a Plimsoll line measures) and
-the word *dead* is gone. **The `plimsoll` name has never been swept**: no PyPI, GitHub or npm
-check has been run against it. `BRIEF.md` records it as free on the strength of a runner-up note,
-which is now load-bearing and unverified. Sweep before pushing.
+the word *dead* is gone. **The `plimsoll` sweep was run on 2026-08-15 and the name
+FAILS** the project's own criterion — 20+ GitHub repos share the exact name, four of them LLM/agent
+tooling from the last ten weeks, one of which (`CryptoJym/plimsoll`) is this product's pitch and
+metaphor almost verbatim. npm is taken too. Nothing blocks the name; nothing has traction. But
+`deadweight` is the only name here that has ever passed the check. See `BRIEF.md` § Task 1.
+**Undecided as of this writing.**
 
 **The directory was renamed to `plimsoll` on 2026-08-15**, at
 `/Volumes/WD Green/dev/git/plimsoll`. Three live things pointed at the old path and were
