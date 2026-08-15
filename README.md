@@ -71,7 +71,11 @@ in the design document for the three inherited ideas and what they were called.
 
 | path | what it is |
 | --- | --- |
-| `BRIEF.md` | the originating handoff, plus the naming check and prior-art sweep |
+| `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
+| `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
+| `deadweight/` | the code — two hooks, measurement, tiers, corpus. 43 tests |
+| `tests/` | `python3 -m unittest discover -s tests -t .` |
+| `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |
 | `skills/managing-context-budget/SKILL.md` | **the skill — written and tested.** The one shipped part that exists |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios it was written against, and their results |

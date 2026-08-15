@@ -1,8 +1,13 @@
 # BRIEF — read this first
 
-**Status: SCAFFOLD ONLY.** Nothing here is designed yet. This file is the handoff from the
-session that had the idea (2026-08-15, working in `iladub`), written so a fresh session can
-resume without re-deriving anything.
+> **THIS FILE IS HISTORY, NOT CURRENT STATE.** It is the originating handoff, preserved as
+> written plus the Task 1 findings. Its "nothing is designed yet" framing was true on the
+> morning of 2026-08-15 and is false by that evening: there is an approved design, a tested
+> skill, and two working hooks. **Read `HANDOFF.md` first for where things actually stand.**
+
+**Status when written: SCAFFOLD ONLY.** Nothing here is designed yet. This file is the handoff
+from the session that had the idea (2026-08-15, working in `iladub`), written so a fresh session
+can resume without re-deriving anything.
 
 **The name is now `deadweight`** (settled 2026-08-15, after the naming check — see § Task 1
 results). The provisional name `context-discipline` survives only as the directory name and

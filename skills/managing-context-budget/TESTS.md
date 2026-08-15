@@ -1,5 +1,10 @@
 # Pressure scenarios for `managing-context-budget`
 
+**Fixtures live in `tests/fixtures/`** — `fixture-preflight` (scenario A), `fixture-chard` and
+`fixture-resume` (scenario C). Copy a fixture to a scratch directory before running an agent
+against it; the resumption fixtures are mutated by a passing run, and two reps sharing one copy
+will collide.
+
 The skill was written test-first. These are the scenarios, so results can be reproduced or
 contested. Run each **without** the skill to confirm the failure still occurs before changing the
 skill to address it — a control that does not fail means there is nothing to author.
