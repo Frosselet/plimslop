@@ -126,7 +126,7 @@ counts are as of 2026-08-15.
 | thing | path | notes |
 | --- | --- | --- |
 | the gauge (live copy) | `~/.claude/statusline-context-gauge.py` | wired via `statusLine` in `~/.claude/settings.json` |
-| the gauge (repo copy) | `./statusline-context-gauge.py` | copied here 2026-08-15; **the two are now forks — reconcile before editing either** |
+| the gauge (repo copy) | *removed 2026-08-15* | deleted before publication, per the sweep. Only the live copy remains, so there is no longer a fork |
 | the hook | `<origin>/scripts/context_budget.py` | `UserPromptSubmit` hook in the origin repo's `.claude/settings.json` |
 
 `<origin>` = `<origin>`.

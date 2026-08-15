@@ -123,19 +123,28 @@ in the design document for the three inherited ideas and what they were called.
 
 | path | what it is |
 | --- | --- |
+| `LICENSE` | Apache-2.0, canonical text. See § Licensing for the prose split |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
 | `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command. 76 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |
-| `skills/managing-context-budget/SKILL.md` | **the skill — written and tested.** The one shipped part that exists |
+| `skills/managing-context-budget/SKILL.md` | **the skill.** Two procedures: pre-flight and handoff |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios it was written against, and their results |
 | `.claude-plugin/` | plugin and marketplace manifests. Both validate against `claude plugin validate` |
 | `hooks/` | `hooks.json` plus the two launchers the plugin invokes. They locate the package relative to themselves, so no `PYTHONPATH` is needed |
-| `statusline-context-gauge.py` | prototype gauge. **Not to be published** — see the sweep. Personal script only |
+
+## Licensing
+
+Copyright 2026 Francois Rosselet.
+
+**Code is Apache-2.0** — see [`LICENSE`](LICENSE), verbatim canonical text.
+
+**Prose is CC-BY-4.0**: `skills/`, `docs/`, `README.md`, `BRIEF.md`, `HANDOFF.md`. The split
+follows the convention already used in the repository this was extracted from — the skill text is
+vocabulary and procedure, read by people and models rather than executed.
 
 ## Open
 
-Licensing is undecided. The reader's minimum *n* is not yet chosen. The two forked copies of the
-gauge still need reconciling before either is edited.
+The reader's minimum *n* is not yet chosen.

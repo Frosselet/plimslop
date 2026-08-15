@@ -484,9 +484,10 @@ interpretations, which is the signal that wording binds.
 - **Licensing.** Undecided. The origin repository uses Apache-2.0 for code and CC-BY-4.0 for
   vocabulary; this repo
   is separate and the choice is open.
-- **The gauge.** Prior-art sweep says do not publish. Remains a personal script; the two forked
-  copies (`~/.claude/statusline-context-gauge.py` and `./statusline-context-gauge.py`) still need
-  reconciling before either is edited.
+- **The gauge — settled 2026-08-15.** Prior-art sweep said do not publish, so the repo copy was
+  deleted before publication. It remains a personal script at `~/.claude/statusline-context-gauge.py`,
+  now the only copy, which also ends the fork the two copies had created. It is still in this
+  repo's git history.
 - **Reconciling with the origin repo — settled 2026-08-15.** The replacement was installed
   user-scope first, then the origin's `.claude/settings.json` was deleted, so the two never both
   fired. The feared breakage did not occur: the gauge's `HANDOFF_PCT`/`STOP_PCT` import is guarded

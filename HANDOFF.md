@@ -25,7 +25,7 @@ carrying the evidence grade that supports it.
 | `skills/managing-context-budget/SKILL.md` | the shipped skill. Two procedures, not three |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios and their results. Fixtures are in `tests/fixtures/` |
 | `deadweight/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py`, `mark.py` |
-| `tests/` | 68 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
+| `tests/` | 76 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
 | `git log` | commit messages carry the reasoning for each decision, including the ones that were reversed |
 | `docs/unreviewed/reader-detailed-design.md` | **quarantined, see §4.** Not approved, not reviewed |
 
@@ -35,6 +35,7 @@ carrying the evidence grade that supports it.
 | --- | --- |
 | Name is `deadweight`; `context-discipline` was free but unclaimable | `BRIEF.md` § Task 1 results; commit `f5a0626` |
 | Do not publish the gauge — 736 competing repos, one at ★27k | `BRIEF.md` § Task 1 results |
+| The gauge is deleted from the tree, **but remains in git history** | commit removing `statusline-context-gauge.py`. Publishing the history publishes the file |
 | Floors denominated in absolute tokens, tiered by task shape | design §4.1; `deadweight/tiers.py` |
 | Resumption protocol tested and **cut** — 4/4 unguided runs passed | design §4.4; `TESTS.md` § Scenario C |
 | Outcome markers are rework events attributed on discovery, not quality judgments | design §2 and §7 |
@@ -81,7 +82,11 @@ Reading this section does not promote anything in it.
   genuinely good — reframing the refusal rule from sample size to interval width, and an argument
   that no trend should ever be fitted — but nothing in it has been checked. Treat as a source of
   proposals, not decisions.
-- **Licensing undecided.** The reader's minimum *n* undecided.
+- **Licensing decided 2026-08-15:** Apache-2.0 for code (`LICENSE`, canonical text, md5 checked
+  against a known-good copy), CC-BY-4.0 for prose, following the origin repo's own convention. It
+  is recorded in `README.md` § Licensing and nowhere else, so it is a decision, not a settlement —
+  reopen it freely before the first push, and with more care after. **The reader's minimum *n* is
+  still undecided.**
 - **This repo now depends on the private origin repo in no way at all**, as of 2026-08-15. Three
   things were true and are no longer: the origin ran a competing percentage hook (its
   `.claude/settings.json` was deleted there — staged, **not committed**, in that repo); this repo
