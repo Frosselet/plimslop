@@ -119,7 +119,19 @@ Reading this section does not promote anything in it.
   mechanical** — a `sed` over six files, spot-repaired where it read badly. Prose elsewhere in
   `BRIEF.md` may still be awkward; nothing in it is load-bearing.
 
-## 5. Next concrete action
+## 5. Published
+
+**https://github.com/Frosselet/plimslop — public since 2026-08-15.** Pushed on the owner's explicit
+instruction. Two things went out with it, both known and neither a secret:
+
+- **`statusline-context-gauge.py` is recoverable from git history** (commits `777179f`…`d5c194f`),
+  though the sweep said not to publish it. That decision was strategic — 736 competing status
+  lines — not confidential. Purging it would rewrite all 21 SHAs and break the commit citations in
+  §3 and in `BRIEF.md`, which is why it was left. Reopen if the reasoning changes.
+- The corpus is **not** in the repo and never should be: it lives at `~/.claude/plimslop/` and
+  records project paths and filenames.
+
+## 6. Next concrete action
 
 **The reader.** The marker command is built (`plimslop/mark.py`, 25 tests), so all three record
 types can now exist. Nothing has been marked yet, and nothing can be until a hook is installed and

@@ -29,14 +29,12 @@ plimslop is packaged as a Claude Code plugin: the skill and both hooks install t
 hook commands resolve their own location through `${CLAUDE_PLUGIN_ROOT}`, so there is no path to
 edit by hand.
 
-**Not published yet — there is no remote.** Once there is one:
-
 ```
-/plugin marketplace add <owner>/plimslop
+/plugin marketplace add Frosselet/plimslop
 /plugin install plimslop@plimslop
 ```
 
-Until then it installs from a local checkout, which is how the packaging was verified:
+Or from a local checkout, which is how the packaging was first verified:
 
 ```
 claude plugin marketplace add /path/to/plimslop
