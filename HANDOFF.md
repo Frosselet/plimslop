@@ -130,12 +130,43 @@ Reading this section does not promote anything in it.
   originating; testing it costs a scenario battery. So a session that seriously improves this skill
   crosses the floor in the act of improving it — twice on 2026-08-15 alone. Its only offered remedy
   is delegation, which § Pre-flight now correctly forbids for authorship. No resolution proposed.
-- **Agents claim to log without logging.** In D1-treatment **no rep executed `preflight`** — all four
-  announcements were claims with no command run. The skill's own warning is that a logging step you
-  cannot run is worse than none because it looks done; this is a level below, and it means corpus
-  records are missing precisely where an agent believed it had written one. No scenario covers it,
-  and it matters more than anything else in this entry: the corpus is the only thing that can ever
-  validate a floor, and this is a silent hole in it.
+- **Agents claim to log without logging — HALF FIXED, and the remaining half is a design problem.**
+  Diagnosed 2026-08-15. Two separable failures:
+  - **"couldn't run" — FIXED in `edd05c9`.** `cd /tmp && python3 -m plimslop.preflight` (the literal
+    command SKILL.md gave) raised `ModuleNotFoundError`; it resolved only from the repo root, while
+    `settings.json` wires both *hooks* with an explicit `PYTHONPATH`. Hence a corpus of 56 turns and
+    28 preflights. `bin/plimslop` existed but was not symlinked, so it was inert. Docs now lead with
+    `plimslop preflight …` and `~/.local/bin`.
+  - **"didn't try" — NOT FIXED.** 4 of 5 D1-treatment reps said *"Preflight logged"* having executed
+    nothing. `edd05c9` removes the excuse; on the D1 evidence it will not produce the record.
+
+  **Why the obvious detector cannot be built as it stands.** A `turn` record carries
+  `type, session, project, tokens, baseline, compacted, dropped, ts` (`hook.py:55-62`) — volume only.
+  **`shape` exists nowhere but the `preflight` record, which only the agent writes.** So "an
+  originating turn happened with no preflight" is *not an observable of the corpus*, and
+  `stop.py` cannot test it however it is wired. Access is not the obstacle: `stop.py:102` has the
+  session id, `stop.py:132` already reads the corpus before deciding, and `_raised_before`
+  (`:126-133`) is the exact "scan for a record of type T matching this session, act once" query.
+  The obstacles are (a) shape is unobservable and (b) the one-speak-per-session slot at `:12-19` is
+  already spent on the volume gate.
+
+  **Three findings that came out of the same diagnostic and are separately actionable:**
+  - **The override rate is computed by no code in this repo.** `reader.py` selects only `turn`
+    (`:58`, `:116`, `:139`) and `rework`; it never reads `preflight`. The skill calls the override
+    rate *"the only honest measure of whether these floors are usable"* and nothing measures it.
+  - **Session attribution is entirely heuristic.** Of 28 preflight records: `inferred` 24,
+    `unknown` 2, absent 2, **`given` 0**. No agent has ever passed `--session`; every attribution is
+    a reverse-match to "latest turn in this project" (`preflight.py:56-67`). Per-session preflight
+    counts are a join, not ground truth.
+  - **The design's stated verification is falsified.** Spec `:435-437` says *"the corpus is its own
+    test harness: `preflight` records show whether the model actually classified the shape"*. D1
+    shows a missing record coexisting with a confident on-screen claim that it was written.
+
+  Corpus as of diagnosis: 90 records, 5 groups, 1 of 4 turn-bearing sessions with zero preflights —
+  but that session has a single turn, and `hook.py:39-40` never records turn 1, so the population is
+  biased toward long sessions, which is the opposite of where D1 saw the failure. **The 25% is not a
+  rate to quote.** Also minor doc drift: spec `:294` claims `turn` carries turn index, model and
+  window; `hook.py:55-62` writes none of them.
 - **The `slop` in the name is unresolved, not resolved.** Design §2 rejects quality-marking outright;
   *slop* is a quality word. `README.md` § Why `plimslop` argues the tool measures the water and not
   the goods, which is a good answer to a real objection, not a disappearance of it.
