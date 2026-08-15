@@ -117,6 +117,19 @@ Reading this section does not promote anything in it.
   sentence budget to match its own parts, drop or demote the question clause. That is originating
   work; it was deliberately not done at 206K in the session that measured it. Until someone does it,
   the shipped section contains one rule its own test says is counter-productive.
+- **The floors measure volume, not scope — and a session can diverge while fully compliant.** The
+  2026-08-15 session that ran Scenario D named every shape, logged every gate, and honestly reported
+  every result, and still drifted from one skill section to four files across two repos plus a
+  corpus-integrity investigation. Nothing in the tool sees that. Absolute tokens say how much is in
+  the window, never how many distinct things are; they rose *because* of the drift, but as a lagging
+  symptom that cannot separate "read a lot about one thing" from "touched six things". A session can
+  be at 60K and scattered or at 220K and tightly on one artefact. Whether that is worth instrumenting
+  is undecided — recording it because the gate not firing on the thing that actually went wrong is
+  evidence about the gate.
+- **The skill has no procedure for its own maintenance under its own constraint.** Editing it is
+  originating; testing it costs a scenario battery. So a session that seriously improves this skill
+  crosses the floor in the act of improving it — twice on 2026-08-15 alone. Its only offered remedy
+  is delegation, which § Pre-flight now correctly forbids for authorship. No resolution proposed.
 - **Agents claim to log without logging.** In D1-treatment **no rep executed `preflight`** — all four
   announcements were claims with no command run. The skill's own warning is that a logging step you
   cannot run is worse than none because it looks done; this is a level below, and it means corpus
