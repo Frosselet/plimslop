@@ -19,8 +19,8 @@ carrying the evidence grade that supports it.
 | `BRIEF.md` | history only. The originating handoff plus the naming check and prior-art sweep. Its opening status line describes the morning of 2026-08-15, not now |
 | `skills/managing-context-budget/SKILL.md` | the shipped skill. Two procedures, not three |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios and their results. Fixtures are in `tests/fixtures/` |
-| `deadweight/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py` |
-| `tests/` | 43 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
+| `deadweight/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py`, `mark.py` |
+| `tests/` | 68 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
 | `git log` | commit messages carry the reasoning for each decision, including the ones that were reversed |
 | `docs/unreviewed/reader-detailed-design.md` | **quarantined, see §4.** Not approved, not reviewed |
 
@@ -36,6 +36,9 @@ carrying the evidence grade that supports it.
 | Hook carries state, skill carries procedure | design §3 |
 | Enforcement strength tracks evidence grade: block / warn / off | design §9; `deadweight/stop.py` |
 | Stop hook's loop guard is the corpus, because `stop_hook_active` is undocumented for Stop | `deadweight/stop.py` docstring; commit `e860281` |
+| An explicit `--session` marker carries the session's token *interval*, never a point inside it | `deadweight/mark.py` `_from_session`; decided 2026-08-15, recorded nowhere else |
+| A named `--commit` is `explicit` in method but still `inferred` in confidence — the commit-to-turn mapping is by timestamp either way | `deadweight/mark.py` `_from_git` docstring. Reads §7's "explicit is exact" as being about naming, not about the turn |
+| A turn spent in another project never attributes rework here; a session run from a parent directory reads as a miss | `deadweight/mark.py` `_turn_at`, `_within` |
 
 **The directory is still named `context-discipline`.** Renaming it is a `mv` plus reopening;
 nothing in the code or docs depends on the old name.
@@ -70,12 +73,18 @@ Reading this section does not promote anything in it.
 
 ## 5. Next concrete action
 
-**Build the rework marker command, test-first.** It is the missing half of the corpus: `turn`
-and `block` records are being written, but no `rework` record can exist yet, and without those
-the reader has nothing to read and no floor can ever be argued with. Design §7 gives the record
-shape and the attribution order (explicit → git-derived → unattributed, each carrying its method
-and confidence).
+**The reader.** The marker command is built (`deadweight/mark.py`, 25 tests), so all three record
+types can now exist. Nothing has been marked yet, and nothing can be until a hook is installed and
+turn records start accumulating — the corpus is still empty.
 
-Then the reader. Note that the reader is **originating** work under this project's own tier
-table — start it in a fresh session, and check `docs/unreviewed/reader-detailed-design.md` for
-proposals worth stealing before designing from scratch.
+The reader is **originating** work under this project's own tier table — start it in a fresh
+session, and check `docs/unreviewed/reader-detailed-design.md` for proposals worth stealing before
+designing from scratch.
+
+Two smaller things the marker surfaced, neither done:
+
+- **Nothing tells anyone to run the marker.** `SKILL.md` has two procedures and does not mention
+  marking rework. Whether a third procedure belongs there — or whether marking is the human's job
+  and not the agent's — is not settled anywhere, so it was left alone rather than decided quietly.
+- **Turn records have no turn index**, though design §7 lists one. `mark.py` pins attribution to a
+  turn record's `ts` instead. Fine for the curve; worth knowing before the reader assumes an index.

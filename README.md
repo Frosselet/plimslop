@@ -2,7 +2,9 @@
 
 *Know what your context is actually costing you, and what it is costing you for nothing.*
 
-**Status: design stage. Nothing here is implemented yet.** The design is complete and reviewed:
+**Status: the skill, both hooks, the corpus and the marker command are written and tested. The
+reader is not.** Neither hook is installed anywhere yet, so no corpus is accumulating. The design is
+complete and reviewed:
 [`docs/superpowers/specs/2026-08-15-context-budget-skill-design.md`](docs/superpowers/specs/2026-08-15-context-budget-skill-design.md).
 
 ---
@@ -18,6 +20,24 @@ own context budget:
   strength you configure per tier.
 - **A corpus** — append-only, local, never transmitted. Records what your context cost and what got
   reworked, so the thresholds can eventually be argued with instead of inherited.
+
+## Marking rework
+
+The corpus only becomes evidence if the rework half of it gets written. When you find work that had
+to be redone, mark it — at the moment you discover it, not when it was produced:
+
+```
+python3 -m deadweight.mark deadweight/parser.py --note "rewritten from scratch"
+python3 -m deadweight.mark "deadweight/parser.py:40-58"     # blame the hunk, not the file
+python3 -m deadweight.mark "the retry approach I abandoned" # no artefact: still recorded
+python3 -m deadweight.mark README.md --session <session-id> # or --commit <sha>
+```
+
+It maps the target back to the turn that produced it — `git blame` for the commit, the turn records
+for the session that was running when that commit's work was done. Every marker prints what it
+attached to, and says `inferred` when the mapping was made from timestamps rather than named
+outright. Markers it cannot attribute are **recorded as unattributed, never dropped**: the
+unattributed fraction is how you tell a thin corpus from a solid one.
 
 ## Why it exists
 
@@ -73,7 +93,7 @@ in the design document for the three inherited ideas and what they were called.
 | --- | --- |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `deadweight/` | the code — two hooks, measurement, tiers, corpus. 43 tests |
+| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command. 68 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |
