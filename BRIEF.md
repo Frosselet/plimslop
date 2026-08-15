@@ -4,9 +4,9 @@
 session that had the idea (2026-08-15, working in `iladub`), written so a fresh session can
 resume without re-deriving anything.
 
-**The repository name `context-discipline` is PROVISIONAL** and was chosen only so a directory
-could exist. The naming check has now run and **the name should be changed before any push** —
-see § Task 1 results.
+**The name is now `deadweight`** (settled 2026-08-15, after the naming check — see § Task 1
+results). The provisional name `context-discipline` survives only as the directory name and
+should be renamed when convenient; nothing depends on it.
 
 ---
 
@@ -52,6 +52,14 @@ domain, appearing in the **descriptions** of unrelated projects: `anothervibecod
 
 So the name is not taken — it is **unclaimable**. It reads as a category label rather than a product
 and will never be findable by search. Rename before pushing.
+
+**Resolved 2026-08-15: the name is `deadweight`.** Free on PyPI; no agent- or context-tooling prior
+art. Two caveats accepted knowingly: npm is taken, and the word already reads as *unused-code
+detection* in software generally (`aanand/deadweight`, ★1181, marked NOT MAINTAINED;
+`rails_deadweight`). That connotation was judged to help rather than hurt, since the design reports
+unused MCP servers. `plimsoll` was the runner-up — free everywhere, no prior art, and a closer
+metaphor (an absolute load line, several of them for different conditions) — and remains the
+fallback if `deadweight` proves confusing.
 
 ### The gauge: do not publish it
 

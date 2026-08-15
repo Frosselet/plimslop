@@ -1,19 +1,43 @@
-# Design — context budget skill, hook, and evidence corpus
+# deadweight — design
+
+*A skill, two hooks, and an evidence corpus that keep a coding-agent session honest about its own
+context budget.*
 
 **Date:** 2026-08-15
-**Status:** design approved section-by-section; §6 written but not separately approved.
-**Provenance:** `BRIEF.md`, plus § Task 1 results (naming check and prior-art sweep, commit `d2d49ab`).
+**Status:** design approved section-by-section; §10 written but not separately approved.
+**Sources:** `BRIEF.md`, plus § Task 1 results (naming check and prior-art sweep, commit `d2d49ab`).
 
 A note on ceremony: `BRIEF.md` settles "brainstorm yes, spec no, plan no". This document is the
-brainstorm's output, not an iladub-style spec — no SHACL membrane, no derivation queries, no
+brainstorm's output, not a full specification — no formal membrane, no derivation queries, no
 falsifiable oracle. It lives under `docs/superpowers/specs/` only because that is the
 brainstorming skill's default path.
+
+## Provenance and inherited terms
+
+deadweight was extracted from a private working repository where the problem was first recorded.
+That repository is a **consumer** of this tool, not its home, and nothing here depends on it. Three
+things carried over, and are referred to below by these names:
+
+- **The prior rule** — a convention recorded there: *never work past 40% of the context window*,
+  with 30% as the handoff mark. Its evidence was one uncontrolled, self-assessed, confounded
+  session (2026-08-09). Its unit is wrong, and the error grows with window size: on the 1M window
+  it was written for, 40% is 400,000 tokens. **deadweight exists because that rule was probably far
+  too loose, not too strict**, and because its number could not be defended.
+- **The recorded incidents** — occasions where a condensed index line was consumed as fact (twice),
+  and where a stale code comment ("widened on this branch only", long since shipped) and an index
+  row's own closing instruction were both wrong. A fresh session fixes none of these; opening the
+  primary source does. These motivate §4.4 and are the strongest evidence in the design.
+- **Evidence grading** — labelling a claim *asserted*, *proposed*, or *promoted* according to what
+  supports it, rather than stating everything flatly. Every number deadweight ships carries such a
+  grade, and the tool applies the same standard to its own output.
+
+Beyond this section the origin repository is named only where a concrete cutover is described (§11).
 
 ---
 
 ## 1. What this is
 
-Three shipped parts and one file, keeping a coding-agent session honest about its own context
+Four shipped parts and one file, keeping a coding-agent session honest about its own context
 budget, and collecting the evidence to say where the line actually sits.
 
 The product's distinguishing claim is negative: **it does not ship a promoted constant.** Every
@@ -45,7 +69,7 @@ have been densest exactly where the user was least expert. The fix was to stop a
 *judgment* at *production time*: record **history** ("this was reverted, redone, abandoned"),
 which needs memory rather than expertise, and **attribute on discovery**, letting the tool map the
 artefact back to the turn that produced it. That decoupling of *caused-at* from *noticed-at* is
-also the direct fix for the flaw in R76's own evidence, where 40% was merely where degradation
+also the direct fix for the flaw in the prior rule's own evidence, where 40% was merely where degradation
 became noticeable.
 
 **Injecting the figure on every turn was rejected** in favour of injecting from the lowest floor
@@ -108,7 +132,7 @@ that make it sloppy.
 
 The 50K figure is anchored on NoLiMa (11 of 13 models below half their baseline at 32K), Chroma's
 18-model finding that decline begins immediately rather than at a cliff, and the commonly cited
-~50K figure. Against these, R76's 40% of a 1M window — 400K — is roughly an order of magnitude
+~50K figure. Against these, the prior rule's 40% of a 1M window — 400K — is roughly an order of magnitude
 past where multi-step reasoning is already compromised.
 
 **The 150K executing floor has no source behind it** and the shipped text must say so. It is an
@@ -148,8 +172,8 @@ Written **as pointers, not conclusions**:
 - what is unverified or assumed, quarantined under its own heading
 - the next concrete action
 
-**Named anti-pattern: summarising the primaries into the handoff.** That is the manufacture of an
-R87 — a condensed secondary source, written by a tired session, read as fact by a fresh one.
+**Named anti-pattern: summarising the primaries into the handoff.** That manufactures precisely the artefact behind the recorded
+incidents — a condensed secondary source, written by a tired session, read as fact by a fresh one.
 
 ### 4.4 Resumption
 
@@ -160,7 +184,7 @@ The handoff is a pointer, not a source.
 3. The quarantine section stays unverified; reading it does not promote it.
 4. **Handoff and primary disagree → the primary wins, and the handoff is corrected.**
 
-Rule 4 makes the protocol self-healing, and is the rule that would have caught both R87 and R88.
+Rule 4 makes the protocol self-healing, and is the rule that would have caught the recorded incidents.
 
 ### 4.5 Subagent delegation is a remedy, not a loophole
 
@@ -231,7 +255,7 @@ deserves.
   modifying the thing it measures.
 - **No recommendation without evidence behind it.** Never "drop server X" as a judgment; always
   "server X costs ~12K per session, invoked 0 times in your last 40." If the corpus is too thin to
-  say that, the tool says nothing — assert/propose/promote applied to its own output.
+  say that, the tool says nothing — evidence grading applied to its own output.
 
 Noted: this makes the product substantially useful to people who do not care about context
 discipline at all, and it is the part the sweep found nobody shipping. It may be what drives
@@ -239,7 +263,7 @@ adoption, with the protocol arriving as the reason it was built.
 
 ## 7. Corpus, attribution, and the reader
 
-**Storage.** Append-only JSONL under `~/.claude/<name>/`. **Local only, never transmitted** — it
+**Storage.** Append-only JSONL under `~/.claude/deadweight/`. **Local only, never transmitted** — it
 records project paths, filenames and work patterns, and the docs must say so.
 
 **Record types**, deliberately few:
@@ -281,8 +305,8 @@ a quality measure of the corpus itself, and hiding it would make a thin corpus l
 
 **The reader refuses to draw conclusions from thin data.** Below a stated *n* it reports
 `n=3 — this shows nothing` and declines to plot a trend. This is the most important behaviour in
-the project: R76 exists because one session's observation was promoted to a rule, and a tool that
-will happily draw a confident curve through four points is a machine for manufacturing more R76s.
+the project: the prior rule exists because one session's observation was promoted, and a tool that
+will happily draw a confident curve through four points is a machine for manufacturing more of them.
 The refusal is the product's central claim made executable.
 
 ## 8. Failure modes and non-goals
@@ -316,7 +340,7 @@ should be documented.
 - Never transmits the corpus
 - **Never claims causality.** The corpus is observational and the confound is unfixable: late
   sessions hold harder residual work. Stratification narrows it; nothing here eliminates it. The
-  reader's language stays correlational, or the project reproduces R76's original sin with better
+  reader's language stays correlational, or the project reproduces the prior rule's original sin with better
   instrumentation.
 
 ## 9. Enforcement configuration
@@ -331,8 +355,8 @@ with no source behind it has no business hard-blocking anyone.
 | executing | **warn** | 150K is the weakest number in the design; it must not stop work |
 | mechanical | **off** | ungated |
 
-Default-blocking on originating is aggressive, and this project's own history argues for it: R76 was
-already a written rule *with* a hook warning behind it, and was run past for 71% of the session
+Default-blocking on originating is aggressive, and this project's own history argues for it: the prior
+rule was already written *with* a hook warning behind it, and was run past for 71% of the session
 that produced it. Soft enforcement is the thing we have direct evidence does not work here.
 
 Three constraints, all load-bearing:
@@ -378,7 +402,8 @@ should be labelled one.
 
 - **Naming.** `context-discipline` is free on PyPI and uncollided on GitHub but *unclaimable* —
   generic descriptive vocabulary in this exact domain. Rename before any push. Not yet chosen.
-- **Licensing.** Undecided. iladub uses Apache-2.0 for code and CC-BY-4.0 for vocabulary; this repo
+- **Licensing.** Undecided. The origin repository uses Apache-2.0 for code and CC-BY-4.0 for
+  vocabulary; this repo
   is separate and the choice is open.
 - **The gauge.** Prior-art sweep says do not publish. Remains a personal script; the two forked
   copies (`~/.claude/statusline-context-gauge.py` and `./statusline-context-gauge.py`) still need
