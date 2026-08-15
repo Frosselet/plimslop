@@ -46,8 +46,12 @@ carrying the evidence grade that supports it.
 | A named `--commit` is `explicit` in method but still `inferred` in confidence — the commit-to-turn mapping is by timestamp either way | `deadweight/mark.py` `_from_git` docstring. Reads §7's "explicit is exact" as being about naming, not about the turn |
 | A turn spent in another project never attributes rework here; a session run from a parent directory reads as a miss | `deadweight/mark.py` `_turn_at`, `_within` |
 
-**The directory is still named `context-discipline`.** Renaming it is a `mv` plus reopening;
-nothing in the code or docs depends on the old name.
+**The directory was renamed to `deadweight` on 2026-08-15**, at
+`/Volumes/WD Green/dev/git/deadweight`. Three live things pointed at the old path and were
+repointed with it: the two hook commands in `~/.claude/settings.json`, the
+`~/.claude/skills/managing-context-budget` symlink, and the auto-memory directory (copied to the
+new project key; the old copy is still there and harmless). Remaining mentions of
+`context-discipline` in `BRIEF.md` and the design are the naming analysis itself, and are history.
 
 ## 4. Unverified or assumed
 
@@ -70,7 +74,7 @@ Reading this section does not promote anything in it.
   If the WD Green volume is unmounted the link dangles and the skill silently disappears, which is
   the same failure mode as the hooks.
 - **Both hooks are now installed**, user-scope, on 2026-08-15 with explicit consent. They run from
-  the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/context-discipline` in
+  the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/deadweight` in
   `~/.claude/settings.json` — not copied to `~/.claude/`, so there is no fork to drift. If that
   volume is unmounted the hooks silently no-op, which is the designed failure. `Stop` runs in
   `warn` mode via `DEADWEIGHT_MODE_ORIGINATING=warn`; the `block` default was not used.

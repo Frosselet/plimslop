@@ -10,7 +10,8 @@ from the session that had the idea (2026-08-15, working in the origin repo), wri
 can resume without re-deriving anything.
 
 **The name is now `deadweight`** (settled 2026-08-15, after the naming check — see § Task 1
-results). The provisional name `context-discipline` survives only as the directory name and
+results). The provisional name `context-discipline` survived as the directory name until it was
+renamed on 2026-08-15, and
 should be renamed when convenient; nothing depends on it.
 
 ---
