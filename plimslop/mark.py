@@ -1,6 +1,6 @@
 """The rework marker command: record that something had to be redone.
 
-    python3 -m plimsoll.mark <target> [--note ...] [--session ID] [--commit SHA]
+    python3 -m plimslop.mark <target> [--note ...] [--session ID] [--commit SHA]
 
 A marker is a statement of *history*, not a judgment of quality: this was
 reverted, redone, abandoned. It is written when the rework is discovered, and
@@ -14,7 +14,7 @@ import subprocess
 import sys
 import time
 
-from plimsoll.corpus import append, default_path, read
+from plimslop.corpus import append, default_path, read
 
 
 def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None):
@@ -201,7 +201,7 @@ def _git(argv, cwd):
 
 
 def _parse(argv):
-    parser = argparse.ArgumentParser(prog="plimsoll.mark")
+    parser = argparse.ArgumentParser(prog="plimslop.mark")
     parser.add_argument("target", help="a path, a path:lines hunk, or a description")
     parser.add_argument("--note", default=None, help="why it was reworked")
     parser.add_argument("--session", default=None,

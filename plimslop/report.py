@@ -9,14 +9,14 @@ Two audiences, deliberately separated:
   percentage, because a percentage is what makes 190K read as a tolerable 19%.
 """
 
-from plimsoll.tiers import FLOORS, LOWEST_FLOOR
+from plimslop.tiers import FLOORS, LOWEST_FLOOR
 
 SKILL = "managing-context-budget"
 
 
 def build_output(session, window):
     """The dict the hook writes to stdout for this session."""
-    human = f"plimsoll {session.tokens:,}"
+    human = f"plimslop {session.tokens:,}"
     if window:
         human += f" ({100.0 * session.tokens / window:.0f}%)"
 

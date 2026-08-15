@@ -1,17 +1,17 @@
-# HANDOFF — plimsoll, 2026-08-15
+# HANDOFF — plimslop, 2026-08-15
 
 Written at ~317K tokens, past this project's own originating floor by 6×. Written to the
 recipe in `skills/managing-context-budget/SKILL.md` §Handoff, which is also the first real
 use of that recipe.
 
-**Updated later the same day at 112,882 tokens** — measured with `plimsoll.measure` against the
+**Updated later the same day at 112,882 tokens** — measured with `plimslop.measure` against the
 session's own transcript, not estimated — by the session that built the marker command. That
 session was asked to start the reader, ran the pre-flight, found itself at 2.3× the originating
 floor, and stopped instead. §5 is what it handed over. Nothing about the reader was designed there.
 
 ## 1. Goal
 
-Build **plimsoll**: a skill, two hooks, and a local evidence corpus that keep a coding-agent
+Build **plimslop**: a skill, two hooks, and a local evidence corpus that keep a coding-agent
 session honest about its own context budget — denominated in absolute tokens, with every number
 carrying the evidence grade that supports it.
 
@@ -24,7 +24,7 @@ carrying the evidence grade that supports it.
 | `BRIEF.md` | history only. The originating handoff plus the naming check and prior-art sweep. Its opening status line describes the morning of 2026-08-15, not now |
 | `skills/managing-context-budget/SKILL.md` | the shipped skill. Two procedures, not three |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios and their results. Fixtures are in `tests/fixtures/` |
-| `plimsoll/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py`, `mark.py` |
+| `plimslop/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py`, `mark.py` |
 | `tests/` | 90 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
 | `git log` | commit messages carry the reasoning for each decision, including the ones that were reversed |
 | `docs/unreviewed/reader-detailed-design.md` | **quarantined, see §4.** Not approved, not reviewed |
@@ -33,30 +33,31 @@ carrying the evidence grade that supports it.
 
 | decision | recorded in |
 | --- | --- |
-| Name is `plimsoll`; `context-discipline` was free but unclaimable | `BRIEF.md` § Task 1 results; commit `f5a0626` |
+| Name is `plimslop`; `context-discipline` was free but unclaimable | `BRIEF.md` § Task 1 results; commit `f5a0626` |
 | Do not publish the gauge — 736 competing repos, one at ★27k | `BRIEF.md` § Task 1 results |
 | The gauge is deleted from the tree, **but remains in git history** | commit removing `statusline-context-gauge.py`. Publishing the history publishes the file |
-| Floors denominated in absolute tokens, tiered by task shape | design §4.1; `plimsoll/tiers.py` |
+| Floors denominated in absolute tokens, tiered by task shape | design §4.1; `plimslop/tiers.py` |
 | Resumption protocol tested and **cut** — 4/4 unguided runs passed | design §4.4; `TESTS.md` § Scenario C |
 | Outcome markers are rework events attributed on discovery, not quality judgments | design §2 and §7 |
 | Hook carries state, skill carries procedure | design §3 |
-| Enforcement strength tracks evidence grade: block / warn / off | design §9; `plimsoll/stop.py` |
-| Stop hook's loop guard is the corpus, because `stop_hook_active` is undocumented for Stop | `plimsoll/stop.py` docstring; commit `e860281` |
-| An explicit `--session` marker carries the session's token *interval*, never a point inside it | `plimsoll/mark.py` `_from_session`; decided 2026-08-15, recorded nowhere else |
-| A named `--commit` is `explicit` in method but still `inferred` in confidence — the commit-to-turn mapping is by timestamp either way | `plimsoll/mark.py` `_from_git` docstring. Reads §7's "explicit is exact" as being about naming, not about the turn |
-| A turn spent in another project never attributes rework here; a session run from a parent directory reads as a miss | `plimsoll/mark.py` `_turn_at`, `_within` |
+| Enforcement strength tracks evidence grade: block / warn / off | design §9; `plimslop/stop.py` |
+| Stop hook's loop guard is the corpus, because `stop_hook_active` is undocumented for Stop | `plimslop/stop.py` docstring; commit `e860281` |
+| An explicit `--session` marker carries the session's token *interval*, never a point inside it | `plimslop/mark.py` `_from_session`; decided 2026-08-15, recorded nowhere else |
+| A named `--commit` is `explicit` in method but still `inferred` in confidence — the commit-to-turn mapping is by timestamp either way | `plimslop/mark.py` `_from_git` docstring. Reads §7's "explicit is exact" as being about naming, not about the turn |
+| A turn spent in another project never attributes rework here; a session run from a parent directory reads as a miss | `plimslop/mark.py` `_turn_at`, `_within` |
 
-**Renamed twice on 2026-08-15: `context-discipline` → `deadweight` → `plimsoll`.** The last was
-the owner's call — the metaphor survives (deadweight tonnage is what a Plimsoll line measures) and
-the word *dead* is gone. **The `plimsoll` sweep was run on 2026-08-15 and the name
-FAILS** the project's own criterion — 20+ GitHub repos share the exact name, four of them LLM/agent
-tooling from the last ten weeks, one of which (`CryptoJym/plimsoll`) is this product's pitch and
-metaphor almost verbatim. npm is taken too. Nothing blocks the name; nothing has traction. But
-`deadweight` is the only name here that has ever passed the check. See `BRIEF.md` § Task 1.
-**Undecided as of this writing.**
+**Renamed twice on 2026-08-15: `context-discipline` → `deadweight` → `plimslop`.** The last was
+the owner's call — the metaphor survives (deadweight tonnage is what a Plimslop line measures) and
+the word *dead* is gone. **Three names were swept; `plimslop` is the only one that passed
+cleanly.** `context-discipline` was free but unclaimable; `deadweight` passed on prior art but had
+npm taken and the word *dead*; `plimsoll` FAILED — 20+ GitHub repos share the exact name, four of
+them LLM/agent tooling from the last ten weeks, one being this product's pitch verbatim. `plimslop`
+is a coined portmanteau: PyPI free, npm free, zero GitHub repos, zero code mentions, no web results
+for the exact word. It cannot be generic in-domain vocabulary because it is not vocabulary. Swept
+2026-08-15, **before** the rename this time. See `BRIEF.md` § Task 1.
 
-**The directory was renamed to `plimsoll` on 2026-08-15**, at
-`/Volumes/WD Green/dev/git/plimsoll`. Three live things pointed at the old path and were
+**The directory was renamed to `plimslop` on 2026-08-15**, at
+`/Volumes/WD Green/dev/git/plimslop`. Three live things pointed at the old path and were
 repointed with it: the two hook commands in `~/.claude/settings.json`, the
 `~/.claude/skills/managing-context-budget` symlink, and the auto-memory directory (copied to the
 new project key; the old copy is still there and harmless). Remaining mentions of
@@ -91,11 +92,11 @@ Reading this section does not promote anything in it.
   If the WD Green volume is unmounted the link dangles and the skill silently disappears, which is
   the same failure mode as the hooks.
 - **Both hooks are now installed**, user-scope, on 2026-08-15 with explicit consent. They run from
-  the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/plimsoll` in
+  the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/plimslop` in
   `~/.claude/settings.json` — not copied to `~/.claude/`, so there is no fork to drift. If that
   volume is unmounted the hooks silently no-op, which is the designed failure. `Stop` runs in
   `warn` mode via `DEADWEIGHT_MODE_ORIGINATING=warn`; the `block` default was not used.
-  The corpus at `~/.claude/plimsoll/corpus.jsonl` starts accumulating from the next turn, so
+  The corpus at `~/.claude/plimslop/corpus.jsonl` starts accumulating from the next turn, so
   **every figure the reader will ever see begins after this date.**
 - **`docs/unreviewed/reader-detailed-design.md` (49KB) is not trustworthy as it stands.** It was
   produced by subagents running an invalid test scenario, racing each other on the same file, and
@@ -120,7 +121,7 @@ Reading this section does not promote anything in it.
 
 ## 5. Next concrete action
 
-**The reader.** The marker command is built (`plimsoll/mark.py`, 25 tests), so all three record
+**The reader.** The marker command is built (`plimslop/mark.py`, 25 tests), so all three record
 types can now exist. Nothing has been marked yet, and nothing can be until a hook is installed and
 turn records start accumulating — the corpus is still empty.
 
@@ -133,9 +134,9 @@ that writes them, so read these four places before designing against §7's table
 
 | record | written by | note |
 | --- | --- | --- |
-| `turn` | `plimsoll/hook.py` `_record` | no turn index, no model, no window — §7 lists all three |
-| `block` | `plimsoll/stop.py` `_record` | §7's table does not mention this type at all |
-| `rework` | `plimsoll/mark.py` `main` + `_from_session` / `_from_git` | field set varies by method: `tokens_lo`/`tokens_hi` only for explicit sessions, `commit`/`commit_ts` only when a commit was found |
+| `turn` | `plimslop/hook.py` `_record` | no turn index, no model, no window — §7 lists all three |
+| `block` | `plimslop/stop.py` `_record` | §7's table does not mention this type at all |
+| `rework` | `plimslop/mark.py` `main` + `_from_session` / `_from_git` | field set varies by method: `tokens_lo`/`tokens_hi` only for explicit sessions, `commit`/`commit_ts` only when a commit was found |
 | `preflight` | **nothing yet** | §7 says the skill writes it. The skill does not. No override has ever been logged, so the override rate §7 calls "the honest measure of whether the tiers are usable" cannot be computed |
 
 Two smaller things the marker surfaced, neither done:

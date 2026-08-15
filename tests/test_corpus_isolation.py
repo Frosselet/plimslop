@@ -17,7 +17,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from plimsoll.corpus import default_path
+from plimslop.corpus import default_path
 
 
 class TheSuiteCannotTouchTheRealCorpus(unittest.TestCase):

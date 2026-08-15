@@ -14,7 +14,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from plimsoll.hook import main
+from plimslop.hook import main
 
 
 def transcript(*usages):

@@ -1,12 +1,12 @@
 {
-  "name": "plimsoll",
+  "name": "plimslop",
   "description": "Context-budget discipline for coding agents, denominated in absolute tokens and shipped with the evidence grade behind every number.",
   "owner": {
     "name": "Francois Rosselet"
   },
   "plugins": [
     {
-      "name": "plimsoll",
+      "name": "plimslop",
       "source": "./",
       "description": "Context budget in absolute tokens, with the evidence grade behind every number.",
       "version": "0.1.0"

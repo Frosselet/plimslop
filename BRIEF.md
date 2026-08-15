@@ -67,7 +67,7 @@ unused MCP servers. `plimsoll` was the runner-up — free everywhere, no prior a
 metaphor (an absolute load line, several of them for different conditions) — and remains the
 fallback if `deadweight` proves confusing.
 
-**Superseded 2026-08-15: the name is `plimsoll`.** The runner-up was promoted on the owner's
+**Superseded 2026-08-15 (first time): the name became `plimsoll`.** The runner-up was promoted on the owner's
 call, for the reason recorded above plus one not anticipated here: `deadweight` carries the word
 *dead*, which was not wanted. The metaphor also survives the change intact — deadweight tonnage is
 precisely what a Plimsoll line measures, so the two names describe the same thing from opposite
@@ -100,8 +100,28 @@ was rejected: not taken, but unclaimable. `deadweight`'s own sweep, by contrast,
 context-tooling prior art at all.
 
 Nothing here blocks the name — no competitor has traction. It is a findability judgment, and it is
-now an informed one. **`deadweight` remains the only name in this project that has passed the
-criterion.**
+now an informed one. **`deadweight` remains the only prior name that passed the criterion.**
+
+**Superseded again, same day: the name is `plimslop`** — `plimsoll` + `slop`, the owner's coinage.
+Swept BEFORE renaming this time, which is the process lesson of the day:
+
+| check | result |
+| --- | --- |
+| PyPI `plimslop` | 404 — free |
+| npm `plimslop` | 404 — **free**, which neither `deadweight` nor `plimsoll` was |
+| GitHub exact repo name | **0** |
+| GitHub name/description/readme | **0** |
+| GitHub code search | **0 mentions** |
+| open web | no results for the exact word |
+
+A coined portmanteau cannot fail the same-domain-prior-art criterion, because it is not vocabulary
+anybody else is using. That structural property is what killed `context-discipline` and `plimsoll`,
+and it is why this one is safe to bake into a URL.
+
+One reservation, recorded rather than resolved: *slop* names a **quality** judgment, and design §2
+explicitly rejects quality-marking as something a human cannot do reliably — the tool records
+history, not judgment. As a coined brand rather than a description this is a much weaker objection
+than it would be for a literal name, and the owner made the call knowing it.
 
 ### The gauge: do not publish it
 

@@ -1,5 +1,5 @@
 {
-  "name": "plimsoll",
+  "name": "plimslop",
   "description": "Keeps a coding-agent session honest about its own context budget, denominated in absolute tokens rather than a percentage of the window. Ships a pre-flight skill, a measuring hook, a turn-boundary gate, and a local evidence corpus.",
   "version": "0.1.0",
   "author": {
