@@ -80,6 +80,20 @@ Reading this section does not promote anything in it.
   corpus has held exactly one distinct baseline throughout: **34,650**, from one session. The
   commit message cannot be edited without rewriting public history, so it stands with this
   correction beside it. **The corpus has produced no findings. It is not old enough to have any.**
+- **A session's first turn is never recorded, so short sessions are undercounted.** On turn one the
+  transcript holds no usage yet, `measure.read_session` returns 0, and `hook.py` exits before
+  writing. Every session contributes records from its *second* turn onward. Correct behaviour —
+  there is genuinely nothing to measure yet — but the bias is not neutral: it removes exactly the
+  short, low-token sessions that the `below 50,000` band most needs, which is the band with n=0
+  today. A one-shot session contributes nothing at all. Verified 2026-08-15 by running a headless
+  session and watching the corpus not grow, then a two-turn one and watching it grow by one.
+- **The corpus spans two different baseline regimes and they are not comparable.** Until
+  2026-08-15 ~16:29 UTC every record carries baseline 34,650. After it, 15,658 — `disableWorkflows`
+  and `skillListingMaxDescChars: 200` were added to `~/.claude/settings.json`, cutting 18,992
+  tokens (55%) from what is in the window before anything is typed. Measured by the hook itself,
+  not by a harness. §6 keeps a baseline column precisely so "rework at 120K with a 34K baseline"
+  and "rework at 120K with a 15K baseline" are not conflated — **so stratify by baseline before
+  comparing anything across that boundary.** The Workflow tool alone was ~8,300 tokens of it.
 - **`cumulativeDroppedTokens` semantics.** Implemented as a running total because the field is named
   that way; no local transcript has had more than one compaction, so it has never been observed.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
