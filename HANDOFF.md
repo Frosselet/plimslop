@@ -4,6 +4,11 @@ Written at ~317K tokens, past this project's own originating floor by 6×. Writt
 recipe in `skills/managing-context-budget/SKILL.md` §Handoff, which is also the first real
 use of that recipe.
 
+**Updated later the same day at 112,882 tokens** — measured with `deadweight.measure` against the
+session's own transcript, not estimated — by the session that built the marker command. That
+session was asked to start the reader, ran the pre-flight, found itself at 2.3× the originating
+floor, and stopped instead. §5 is what it handed over. Nothing about the reader was designed there.
+
 ## 1. Goal
 
 Build **deadweight**: a skill, two hooks, and a local evidence corpus that keep a coding-agent
@@ -80,6 +85,16 @@ turn records start accumulating — the corpus is still empty.
 The reader is **originating** work under this project's own tier table — start it in a fresh
 session, and check `docs/unreviewed/reader-detailed-design.md` for proposals worth stealing before
 designing from scratch.
+
+**There is no schema document.** The records the reader has to read are defined only by the code
+that writes them, so read these four places before designing against §7's table:
+
+| record | written by | note |
+| --- | --- | --- |
+| `turn` | `deadweight/hook.py` `_record` | no turn index, no model, no window — §7 lists all three |
+| `block` | `deadweight/stop.py` `_record` | §7's table does not mention this type at all |
+| `rework` | `deadweight/mark.py` `main` + `_from_session` / `_from_git` | field set varies by method: `tokens_lo`/`tokens_hi` only for explicit sessions, `commit`/`commit_ts` only when a commit was found |
+| `preflight` | **nothing yet** | §7 says the skill writes it. The skill does not. No override has ever been logged, so the override rate §7 calls "the honest measure of whether the tiers are usable" cannot be computed |
 
 Two smaller things the marker surfaced, neither done:
 
