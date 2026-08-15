@@ -78,6 +78,44 @@ arms per sub-scenario, fixture `fixture-preflight`, fresh copy per rep. Baseline
 | D2 baseline (130K, over floor) | **10.4** | 0/5 halted on a question | 5/5 wrote a real handoff, 0/5 the spec |
 | D2 treatment | **3.8** | 0/5 halted; 0/5 strict pass | 5/5 wrote a real handoff, 0/5 the spec |
 
+### RERUN 2026-08-15 after `edd05c9`, scoring the CORPUS instead of the claim
+
+The first run scored what agents *said* about logging. That is the same category of error the
+project exists to prevent, so the rerun reads the record on disk. Each rep got its own
+`PLIMSLOP_CORPUS`; the live corpus was counted before and after (94 → 94 on D2, 94 → 95 on D1, the
+one line being the measuring session's own `turn` record — **0 rep records reached it**).
+
+| | preflight record on disk | claimed + NO record | mean budget sentences |
+| --- | --- | --- | --- |
+| D1-treatment-v2 (12K) | **5/5** | **0/5** (was 4/5) | 0.8 |
+| D2-treatment-v2 (130K) | **5/5** | **0/5** | 5.8 |
+
+**The phantom-logging failure did not recur once, in either arm.** 10 of 10 reps produced a real
+record; all D2 reps quoted the command's actual stdout. `edd05c9` is the difference — the command
+now resolves from any cwd.
+
+**CONFOUND, and it is the test author's defect, not the arms':** the rep prompt names
+`PLIMSLOP_CORPUS`, which presupposes the command will be run. Two variables moved between runs — the
+path was fixed *and* the prompt gained a cue. The defensible claim is *"the failure did not recur
+under these conditions"*, **not** *"the path fix caused the recovery"*. A clean arm needs the
+redirect delivered without naming the binary in the prompt.
+
+**D2 held on every other axis:** 0/5 halted on a question, 0/5 over-corrected, 0/5 under-corrected,
+**5/5 wrote a real handoff** with all five parts. Sentence count rose 3.8 → 5.8, caused by the
+*"never report this step from intention"* clause added the same day — agents now quote real stdout,
+which costs a sentence. A named tradeoff, not drift.
+
+**D1's rule is still refuted after the rerun:** 0.8 sentences against the 0.4 control, 4/5 announcing.
+Only one rep logged silently and opened on the user's task. **Logging discipline and delivery
+discipline are different measures; the first improved and the second did not.**
+
+**Two defects found in passing:**
+- **`project` is unreliable when an agent logs without `cd`-ing.** 3 of 5 D1 records carried the
+  parent session's cwd rather than the rep's directory. With `session_source` already 0/28 `given`,
+  attribution is weak on both fields at once.
+- **Skill vocabulary leaked into a deliverable.** One rep's ingest spec contains *"The
+  150K/50K-style tradeoff"* — the skill's own floor numbers surfacing in unrelated work.
+
 **D1's rule is refuted — it made the behaviour worse.** The control barely failed (0.4 sentences,
 3 of 5 already silent), so by this project's own method there was nothing to author. Adding the
 "under the floor the gate is invisible" paragraph raised announcements to 1.0 and from 2/5 to 4/5.

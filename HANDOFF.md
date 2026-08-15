@@ -137,8 +137,13 @@ Reading this section does not promote anything in it.
     `settings.json` wires both *hooks* with an explicit `PYTHONPATH`. Hence a corpus of 56 turns and
     28 preflights. `bin/plimslop` existed but was not symlinked, so it was inert. Docs now lead with
     `plimslop preflight …` and `~/.local/bin`.
-  - **"didn't try" — NOT FIXED.** 4 of 5 D1-treatment reps said *"Preflight logged"* having executed
-    nothing. `edd05c9` removes the excuse; on the D1 evidence it will not produce the record.
+  - **"didn't try" — did NOT survive the fix. Re-measured after `edd05c9`, scoring the corpus
+    instead of the claim: 10 of 10 reps across both arms wrote a real `preflight` record; phantom
+    logging went 4/5 → 0/5.** The earlier reading — that "didn't try" was a separate and more serious
+    failure — was wrong: it was downstream of a command that could not run. **Confound, and it is the
+    test author's:** the rep prompt names `PLIMSLOP_CORPUS`, so two variables moved at once. The
+    defensible claim is "the failure did not recur under these conditions", not "the path fix caused
+    it". One clean arm, with the redirect delivered without naming the binary, would settle it.
 
   **Why the obvious detector cannot be built as it stands.** A `turn` record carries
   `type, session, project, tokens, baseline, compacted, dropped, ts` (`hook.py:55-62`) — volume only.
@@ -154,10 +159,12 @@ Reading this section does not promote anything in it.
   - **The override rate is computed by no code in this repo.** `reader.py` selects only `turn`
     (`:58`, `:116`, `:139`) and `rework`; it never reads `preflight`. The skill calls the override
     rate *"the only honest measure of whether these floors are usable"* and nothing measures it.
-  - **Session attribution is entirely heuristic.** Of 28 preflight records: `inferred` 24,
-    `unknown` 2, absent 2, **`given` 0**. No agent has ever passed `--session`; every attribution is
-    a reverse-match to "latest turn in this project" (`preflight.py:56-67`). Per-session preflight
-    counts are a join, not ground truth.
+  - **Session attribution is entirely heuristic, and `project` is unreliable too.** Of 28 preflight
+    records: `inferred` 24, `unknown` 2, absent 2, **`given` 0** — no agent has ever passed
+    `--session`, so every attribution reverse-matches "latest turn in this project"
+    (`preflight.py:56-67`). And the rerun found 3 of 5 records carrying the *parent* session's cwd
+    as `project`, because the agent logged without `cd`-ing. Both fields the join depends on are
+    weak at the same time.
   - **The design's stated verification is falsified.** Spec `:435-437` says *"the corpus is its own
     test harness: `preflight` records show whether the model actually classified the shape"*. D1
     shows a missing record coexisting with a confident on-screen claim that it was written.
