@@ -18,7 +18,8 @@ the code fine" is not evidence that it is safe to design.
 
 Do this **before** the work, not as a warning afterwards.
 
-1. **Name the shape** — say it out loud, in one line: *originating*, *executing*, or *mechanical*.
+1. **Name the shape** — in one line: *originating*, *executing*, or *mechanical*. How much of this
+   reaches the user is § Delivering the gate, and it is usually none of it.
 2. **Read the figure** — the absolute token count reported for this session. If no figure has been
    reported, you are below every floor; proceed.
 3. **Compare to the floor for that shape.**
@@ -50,15 +51,53 @@ Do this **before** the work, not as a warning afterwards.
 rather than at a cliff). **150K has no source behind it** — it is an interpolation between a
 defensible floor and no floor, and it is the first number here that should be argued with.
 
-Step 1 is doing the real work. A threshold can be crossed silently; a shape stated out loud cannot.
-"Originating, 190K, proceeding anyway" is a sentence someone can see.
+Step 1 is doing the real work. A threshold can be crossed silently; a shape named and logged cannot.
+**The record is what makes it visible** — `preflight` writes it whether you proceed or stop, and the
+override rate is counted from there, not from anything you say to the user.
 
 **Delegating to a subagent is a legitimate remedy, not a loophole.** Subagent context is separate,
 so moving a bounded piece of work into one genuinely keeps this session under a floor.
 
+**The boundary is measurement, not authorship.** Delegate greps, call-site inventories, corpus runs,
+cost figures — work whose output is a fact the session can check when it returns. Do **not** delegate
+the spec, the plan or the design itself. An agent handed your finished reasoning is a transcriber,
+and a transcriber cannot catch a defect in the reasoning it was handed — which is the entire reason
+the artefact gets reviewed. Delegating authorship lowers the number without protecting what the floor
+protects, and it is harder to spot than an override because nothing gets logged.
+
 **Compaction does not reset a floor.** It lowers the number without undoing the damage — it is a
 lossy summary of this session written by this session. Treat crossing a compaction as a stronger
 reason to hand off than crossing a threshold.
+
+## Delivering the gate
+
+The gate protects the loop; performing the gate damages it. This project already learned that once,
+in code: the `Stop` hook speaks **once per session**, warn or block alike, because *a warning every
+turn gets the hook disabled, and a disabled hook measures nothing* (`plimslop/stop.py`
+`_raised_before`, commit `654c609`). The same holds for the sentence you write. An agent that
+narrates its budget every turn trains its reader to skip the paragraph the one time it matters.
+
+**Under the floor, the gate is invisible.** Log it and start the work. No opening shape
+announcement, no token status line, no "proceeding, but noting". The first sentence of the turn
+belongs to the user's task.
+
+**At or over the floor, what the user sees is two parts, in this order:**
+
+1. **The shape and the figure** — "Plan work, and I'm at 2.3× the originating floor."
+2. **What you are doing about it** — handing off, or proceeding with the override logged.
+
+Then continue in the same turn: write the handoff, or do the work. Do not stop to ask which is
+preferred. Where the choice is genuinely the user's — an override on their own project's discipline
+— state a recommendation, act on it, and say it is reversible. A gate that halts the loop to request
+permission to keep thinking has cost more than the crossing it prevented.
+
+**Anticipate rather than announce.** Most floor crossings are spent on reading order, which is yours
+to manage before it becomes anyone's decision:
+
+- Decide the hard thing first, while fresh, before you have read everything.
+- Delegate **measurement** early — subagent context is separate. Never authorship.
+- Write the handoff at 30%, while still accurate. An umbrella that exists before the rain makes
+  stopping a step rather than a crisis.
 
 ## Handoff: what the document IS
 
@@ -105,6 +144,9 @@ Same path caveat as step 5 above.
 | Reading the percentage instead of the token count | 19% of 1M is 190K, which is past the originating floor by nearly 4×. |
 | Treating a plan you wrote this session as "an existing plan" and claiming *executing* | It is *originating* until it is written down and re-read. Shape follows the artefact, not the intention. |
 | Starting the spec because the deadline is today | The deadline is the reason to hand off early, not late. |
+| Opening the turn by naming the shape and the figure when nothing binds | Log it and start the work. Under the floor the gate is invisible. |
+| Halting to ask whether you may continue past a floor | Choose, say so in one sentence, act, and say it is reversible. The question costs more than the crossing. |
+| Delegating the spec or plan itself so the session stays under a floor | Delegate measurement; author the artefact yourself. A transcriber cannot catch a defect in reasoning it was handed. |
 
 ## Red flags
 
@@ -114,6 +156,7 @@ Same path caveat as step 5 above.
   an argument *for* a handoff, not against one
 - A handoff with no "unverified" heading
 - "It's only 19%"
+- A paragraph about your own token count in a turn where the user asked for work
 
 ## Note on scope
 
@@ -121,3 +164,13 @@ This skill covers the two behaviours that were observed to fail without it. **Re
 handoff was tested and did not fail: agents reliably opened the primary, caught a handoff that
 contradicted it, and escalated rather than resolving it alone. No resumption procedure ships here
 for that reason. If your own record later shows resumption failing, that is the point to add one.
+
+**§ Delivering the gate rests on weaker evidence than the rest, and on a different kind.** It comes
+from a failure observed **with** this skill loaded — one real session (2026-08-15, iladub R87), not a
+pressure scenario. The agent complied with every rule above and still damaged the loop: it announced
+the shape before doing any work, then halted mid-task to ask permission to continue. It was not
+misreading; step 1 and the paragraph after the tier table told it to *"say it out loud"* and produce
+*"a sentence someone can see"*. That is a **wrong-shape** failure rather than a discipline failure,
+so the remedy is written as a recipe — stating what the output IS — and not as a prohibition, which
+the superpowers:writing-skills guidance reports measurably backfiring on this class. **n=1, and the
+recipe is unrun**: `TESTS.md` § Scenario D is written and has no baseline and no result.

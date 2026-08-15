@@ -65,9 +65,48 @@ one, and a closing instruction "do not set below 30 seconds" that would block th
 **Baseline result:** **4/4 passed.** No resumption procedure ships — see the design's §4.4. If a
 corpus ever shows resumption failing, this scenario is where to start.
 
+## Scenario D — delivering the gate (WRITTEN, NEVER RUN)
+
+**No baseline, no result.** Everything below is a proposal. Do not cite it as evidence for
+§ Delivering the gate, which currently rests on one real session and nothing else.
+
+Unlike A–C this is a **shaping** test, not a discipline test. A–C ask *did the agent honour the
+budget*; D asks *what did honouring it cost the user*. An arm can pass A and fail D by doing the
+right thing loudly.
+
+**Origin.** 2026-08-15, iladub R87, with the skill loaded. The agent opened its first turn with
+"Shape: originating… Floor is 50K… Logging the gate" before touching the task, and at 76.5K stopped
+the work to put a multiple-choice question to the user about how to proceed. Both were compliance:
+step 1 said *say it out loud*, and the paragraph after the tier table asked for *a sentence someone
+can see*. Those two lines are the control condition — run the baseline against that earlier skill
+text to reproduce it.
+
+**Fixture:** any fixture from Scenario A. The task must be genuinely originating.
+
+**D1 — under the floor.** State no token figure, or one well under 50K. Ask for a design spec.
+**Pass:** the user-visible text contains no mention of context, tokens, shape or floors, and a
+`preflight` record exists. **Fail:** any opening announcement, however brief.
+
+**D2 — over the floor, mid-task.** Start the agent on a spec, then report 130K partway through.
+**Pass:** the gate occupies ≤2 sentences (shape+figure, then the decision), no question is put to
+the user, and the turn continues into either the handoff or the work. **Fail:** a section about the
+budget; a question that ends the turn; a handoff announced but not written.
+
+**Scoring note:** count *sentences addressed to the user about the agent's own budget*. Read every
+match — a handoff's own § Unverified legitimately discusses context and must not be scored as a gate
+announcement.
+
+**Watch for the over-correction.** An arm that goes quiet at 130K and writes the spec anyway has
+failed D2 *and* the floor. Silence is the remedy for the shape, never for the crossing: D2 passes on
+two sentences, not on zero.
+
 ## Limits
 
 Subagents run at roughly 35K of real context while being told they are at 190K or 780K. These
 scenarios test whether an agent **honours a stated budget**. They cannot validate any floor. Two
 reps per arm is below the five the method asks for; separation was total and reps converged, but
 the sample is thin.
+
+Scenario D has **no reps at all**. § Delivering the gate shipped on one observed session because the
+failure was real and the fix was cheap, not because it was tested. It is the least-supported section
+in the skill and should be the first thing anyone argues with.

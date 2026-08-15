@@ -52,6 +52,8 @@ built and published. **None of it is validated** — that part is not a coding t
 | Published public on the owner's explicit instruction | commit `738f30d` |
 | A declared `proceed` above the floor is recorded as `overridden`, whatever the caller called it | `plimslop/preflight.py`; `SKILL.md` step 5. The declared value is kept beside it |
 | The skill now names both logging commands | `SKILL.md` step 5 and § When work has to be redone |
+| The gate is **logged always, spoken rarely** — invisible under the floor, two sentences over it, never a question that halts the loop | `SKILL.md` § Delivering the gate. Same principle `stop.py` `_raised_before` already applies to the hook (commit `654c609`): over-speaking gets the gate ignored |
+| Subagent delegation is bounded to **measurement, never authorship** | `SKILL.md` § Pre-flight, the paragraph after the delegation remedy |
 
 ## 4. Unverified or assumed
 
@@ -99,6 +101,14 @@ Reading this section does not promote anything in it.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
 - **Two reps per test arm**, against a method asking for five. Separation was total and reps
   converged, but the sample is thin.
+- **`SKILL.md` § Delivering the gate is untested.** It ships on **one** observed session (2026-08-15,
+  iladub R87) in which the agent followed the skill exactly and damaged the loop anyway — announcing
+  its shape before any work, then halting mid-task to ask permission to continue. The prior wording
+  caused it: step 1's *"say it out loud"* and *"a sentence someone can see"*. `TESTS.md` § Scenario D
+  is written and **never run** — no baseline, no reps. It is the weakest section in the skill.
+  The risk it introduces is the over-correction: an agent that reads "invisible under the floor" as
+  licence to stay quiet *over* it. Scenario D's D2 exists to catch that and has caught nothing,
+  because nobody has run it.
 - **The `slop` in the name is unresolved, not resolved.** Design §2 rejects quality-marking outright;
   *slop* is a quality word. `README.md` § Why `plimslop` argues the tool measures the water and not
   the goods, which is a good answer to a real objection, not a disappearance of it.
