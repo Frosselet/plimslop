@@ -1,6 +1,6 @@
 """The reader: three views over the corpus.
 
-    python3 -m deadweight.reader curve | baseline | tiers
+    python3 -m plimsoll.reader curve | baseline | tiers
 
 Design §7. The behaviour that matters most here is the refusal: below a stated
 n the reader reports the count and declines to state a rate. The prior rule
@@ -24,8 +24,8 @@ for, and both printed in the output rather than hidden:
 import argparse
 import sys
 
-from deadweight.corpus import default_path, read
-from deadweight.tiers import FLOORS
+from plimsoll.corpus import default_path, read
+from plimsoll.tiers import FLOORS
 
 #: PROPOSED, not settled — see README § Open. n_report is the bar for stating
 #: a rate at all; n_trend the bar for comparing two of them, which is a
@@ -167,7 +167,7 @@ def _within(tokens, low, high):
 
 
 def _parse(argv):
-    parser = argparse.ArgumentParser(prog="deadweight.reader")
+    parser = argparse.ArgumentParser(prog="plimsoll.reader")
     parser.add_argument("view", help="curve, baseline or tiers")
     return parser.parse_args(argv)
 

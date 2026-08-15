@@ -1,4 +1,4 @@
-# deadweight
+# plimsoll
 
 *Know what your context is actually costing you, and what it is costing you for nothing.*
 
@@ -25,23 +25,23 @@ own context budget:
 
 ## Installing
 
-deadweight is packaged as a Claude Code plugin: the skill and both hooks install together, and the
+plimsoll is packaged as a Claude Code plugin: the skill and both hooks install together, and the
 hook commands resolve their own location through `${CLAUDE_PLUGIN_ROOT}`, so there is no path to
 edit by hand.
 
 **Not published yet — there is no remote.** Once there is one:
 
 ```
-/plugin marketplace add <owner>/deadweight
-/plugin install deadweight@deadweight
+/plugin marketplace add <owner>/plimsoll
+/plugin install plimsoll@plimsoll
 ```
 
 Until then it installs from a local checkout, which is how the packaging was verified:
 
 ```
-claude plugin marketplace add /path/to/deadweight
-claude plugin install deadweight@deadweight
-claude plugin details deadweight@deadweight     # 1 skill, 2 hooks
+claude plugin marketplace add /path/to/plimsoll
+claude plugin install plimsoll@plimsoll
+claude plugin details plimsoll@plimsoll     # 1 skill, 2 hooks
 ```
 
 Two things worth knowing before you do that:
@@ -56,9 +56,9 @@ Two things worth knowing before you do that:
 ## Reading the corpus
 
 ```
-python3 -m deadweight.reader curve      # rework against tokens at production
-python3 -m deadweight.reader baseline   # what is in the window before you type
-python3 -m deadweight.reader tiers      # the floors, and what the corpus can say
+python3 -m plimsoll.reader curve      # rework against tokens at production
+python3 -m plimsoll.reader baseline   # what is in the window before you type
+python3 -m plimsoll.reader tiers      # the floors, and what the corpus can say
 ```
 
 **Expect it to refuse.** Below a stated *n* it prints the count and declines to state a rate at
@@ -74,10 +74,10 @@ The corpus only becomes evidence if the rework half of it gets written. When you
 to be redone, mark it — at the moment you discover it, not when it was produced:
 
 ```
-python3 -m deadweight.mark deadweight/parser.py --note "rewritten from scratch"
-python3 -m deadweight.mark "deadweight/parser.py:40-58"     # blame the hunk, not the file
-python3 -m deadweight.mark "the retry approach I abandoned" # no artefact: still recorded
-python3 -m deadweight.mark README.md --session <session-id> # or --commit <sha>
+python3 -m plimsoll.mark plimsoll/parser.py --note "rewritten from scratch"
+python3 -m plimsoll.mark "plimsoll/parser.py:40-58"     # blame the hunk, not the file
+python3 -m plimsoll.mark "the retry approach I abandoned" # no artefact: still recorded
+python3 -m plimsoll.mark README.md --session <session-id> # or --commit <sha>
 ```
 
 It maps the target back to the turn that produced it — `git blame` for the commit, the turn records
@@ -100,7 +100,7 @@ degradation to *absolute* token counts — NoLiMa found 11 of 13 models below ha
 rule permits 400,000 tokens, which is roughly an order of magnitude past where multi-step reasoning
 is already compromised.
 
-deadweight denominates in absolute tokens, ships every number with the evidence grade that supports
+plimsoll denominates in absolute tokens, ships every number with the evidence grade that supports
 it, and builds the corpus that can promote or demote those numbers. **Its distinguishing claim is
 negative: it does not ship a threshold it cannot defend.**
 
@@ -130,7 +130,7 @@ Three further things fall out of the design that the survey found nobody shippin
 *consume* the skill; none of them host it. The skill and hooks install user-scope (`~/.claude/`) so
 they survive branch switches and so a single corpus spans every project.
 
-deadweight was extracted from a private working repository where the problem was first recorded.
+plimsoll was extracted from a private working repository where the problem was first recorded.
 That repository is now a consumer like any other, and nothing here depends on it — see § Provenance
 in the design document for the three inherited ideas and what they were called.
 
@@ -141,7 +141,7 @@ in the design document for the three inherited ideas and what they were called.
 | `LICENSE` | Apache-2.0, canonical text. See § Licensing for the prose split |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command, the reader. 89 tests |
+| `plimsoll/` | the code — two hooks, measurement, tiers, corpus, the marker command, the reader. 89 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |

@@ -8,7 +8,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadweight.measure import read_session
+from plimsoll.measure import read_session
 
 
 def write_transcript(lines):

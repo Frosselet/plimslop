@@ -3,7 +3,7 @@
 Wire it up in `~/.claude/settings.json`:
 
     "hooks": {"Stop": [{"hooks": [{"type": "command",
-      "command": "python3 -m deadweight.stop 2>/dev/null || true"}]}]}
+      "command": "python3 -m plimsoll.stop 2>/dev/null || true"}]}]}
 
 This fires at the END of a turn, so it catches you having crossed a floor, not
 about to. The skill's say-it-out-loud step is the only thing acting before work
@@ -31,10 +31,10 @@ import json
 import os
 import sys
 
-from deadweight.corpus import append, default_path, read
-from deadweight.measure import read_session
-from deadweight.report import SKILL
-from deadweight.tiers import LOWEST_FLOOR
+from plimsoll.corpus import append, default_path, read
+from plimsoll.measure import read_session
+from plimsoll.report import SKILL
+from plimsoll.tiers import LOWEST_FLOOR
 
 #: Enforcement strength tracks evidence grade. `originating` is literature
 #: anchored, so it blocks; `executing` rests on nothing, so it must not.
@@ -44,7 +44,7 @@ DEFAULT_MODES = {"originating": "block", "executing": "warn", "mechanical": "off
 def _modes(overrides=None):
     modes = dict(DEFAULT_MODES)
     for shape in modes:
-        env = os.environ.get("DEADWEIGHT_MODE_" + shape.upper())
+        env = os.environ.get("PLIMSOLL_MODE_" + shape.upper())
         if env in ("block", "warn", "off"):
             modes[shape] = env
     modes.update(overrides or {})

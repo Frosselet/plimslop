@@ -12,7 +12,7 @@ import time
 def default_path():
     """Where the corpus lives when nothing overrides it."""
     return os.path.expanduser(
-        os.environ.get("DEADWEIGHT_CORPUS", "~/.claude/deadweight/corpus.jsonl"))
+        os.environ.get("PLIMSOLL_CORPUS", "~/.claude/plimsoll/corpus.jsonl"))
 
 
 def read(path=None):

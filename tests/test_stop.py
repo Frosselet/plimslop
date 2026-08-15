@@ -16,7 +16,7 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadweight.stop import main
+from plimsoll.stop import main
 
 
 def transcript(*usages):

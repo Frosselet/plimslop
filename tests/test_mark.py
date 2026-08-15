@@ -16,8 +16,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadweight.corpus import append
-from deadweight.mark import main
+from plimsoll.corpus import append
+from plimsoll.mark import main
 
 
 class MarkTestCase(unittest.TestCase):

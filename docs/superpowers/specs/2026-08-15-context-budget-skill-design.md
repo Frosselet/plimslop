@@ -1,4 +1,4 @@
-# deadweight — design
+# plimsoll — design
 
 *A skill, two hooks, and an evidence corpus that keep a coding-agent session honest about its own
 context budget.*
@@ -14,21 +14,21 @@ brainstorming skill's default path.
 
 ## Provenance and inherited terms
 
-deadweight was extracted from a private working repository where the problem was first recorded.
+plimsoll was extracted from a private working repository where the problem was first recorded.
 That repository is a **consumer** of this tool, not its home, and nothing here depends on it. Three
 things carried over, and are referred to below by these names:
 
 - **The prior rule** — a convention recorded there: *never work past 40% of the context window*,
   with 30% as the handoff mark. Its evidence was one uncontrolled, self-assessed, confounded
   session (2026-08-09). Its unit is wrong, and the error grows with window size: on the 1M window
-  it was written for, 40% is 400,000 tokens. **deadweight exists because that rule was probably far
+  it was written for, 40% is 400,000 tokens. **plimsoll exists because that rule was probably far
   too loose, not too strict**, and because its number could not be defended.
 - **The recorded incidents** — occasions where a condensed index line was consumed as fact (twice),
   and where a stale code comment ("widened on this branch only", long since shipped) and an index
   row's own closing instruction were both wrong. A fresh session fixes none of these; opening the
   primary source does. These motivate §4.4 and are the strongest evidence in the design.
 - **Evidence grading** — labelling a claim *asserted*, *proposed*, or *promoted* according to what
-  supports it, rather than stating everything flatly. Every number deadweight ships carries such a
+  supports it, rather than stating everything flatly. Every number plimsoll ships carries such a
   grade, and the tool applies the same standard to its own output.
 
 Beyond this section the origin repository is named only where a concrete cutover is described (§11).
@@ -284,7 +284,7 @@ adoption, with the protocol arriving as the reason it was built.
 
 ## 7. Corpus, attribution, and the reader
 
-**Storage.** Append-only JSONL under `~/.claude/deadweight/`. **Local only, never transmitted** — it
+**Storage.** Append-only JSONL under `~/.claude/plimsoll/`. **Local only, never transmitted** — it
 records project paths, filenames and work patterns, and the docs must say so.
 
 **Record types**, deliberately few:
@@ -470,7 +470,7 @@ interpretations, which is the signal that wording binds.
 - **The gate does not fix missing information.** One GREEN run put it exactly: *"a fresh session
   with a clean window would have invented an answer here just as readily as I would have."* The
   fixture's README and its docstring contradicted each other about where cleanup lived; no context
-  budget repairs that. deadweight addresses degraded reasoning, not absent facts, and the shipped
+  budget repairs that. plimsoll addresses degraded reasoning, not absent facts, and the shipped
   documentation must not imply otherwise.
 - **Six earlier runs were discarded** for test-design faults: a fabricated premise (a spec demanded
   for a codebase that did not exist), and contamination (subagents inherit the parent's working

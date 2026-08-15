@@ -9,7 +9,7 @@
 from the session that had the idea (2026-08-15, working in the origin repo), written so a fresh session
 can resume without re-deriving anything.
 
-**The name is now `deadweight`** (settled 2026-08-15, after the naming check — see § Task 1
+**The name is now `plimsoll`** (`deadweight` was settled first, then superseded the same day — see § Task 1
 results). The provisional name `context-discipline` survived as the directory name until it was
 renamed on 2026-08-15, and
 should be renamed when convenient; nothing depends on it.
@@ -66,6 +66,16 @@ detection* in software generally (`aanand/deadweight`, ★1181, marked NOT MAINT
 unused MCP servers. `plimsoll` was the runner-up — free everywhere, no prior art, and a closer
 metaphor (an absolute load line, several of them for different conditions) — and remains the
 fallback if `deadweight` proves confusing.
+
+**Superseded 2026-08-15: the name is `plimsoll`.** The runner-up was promoted on the owner's
+call, for the reason recorded above plus one not anticipated here: `deadweight` carries the word
+*dead*, which was not wanted. The metaphor also survives the change intact — deadweight tonnage is
+precisely what a Plimsoll line measures, so the two names describe the same thing from opposite
+ends, the capacity and the mark. `deadweight`'s own sweep result stands unedited above: it was a
+sound name, and the decision that replaced it was preference, not a defect found. **The plimsoll
+sweep has NOT been re-run** — no PyPI, GitHub or npm check has been made against this name. It was
+recorded here as "free everywhere, no prior art" when it was the runner-up, and that claim is now
+load-bearing without having been re-verified.
 
 ### The gauge: do not publish it
 

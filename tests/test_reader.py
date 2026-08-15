@@ -18,8 +18,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadweight.corpus import append
-from deadweight.reader import main, N_REPORT
+from plimsoll.corpus import append
+from plimsoll.reader import main, N_REPORT
 
 
 class ReaderTestCase(unittest.TestCase):

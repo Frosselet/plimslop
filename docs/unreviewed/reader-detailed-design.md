@@ -8,7 +8,7 @@
 > from sample size to interval width, and the argument that no trend should ever be fitted.
 > Verify anything you take. See `HANDOFF.md` §4.
 
-# deadweight — the reader, in detail
+# plimsoll — the reader, in detail
 
 *Expansion of §7 of [`2026-08-15-context-budget-skill-design.md`](2026-08-15-context-budget-skill-design.md).
 That section settles what the reader is; this one settles what it does.*
@@ -33,14 +33,14 @@ strongest — it is the part that draws the graph.
 
 ## 1. Command surface
 
-One binary, `deadweight`, with the reader occupying three subcommands and the §7 marker command a
+One binary, `plimsoll`, with the reader occupying three subcommands and the §7 marker command a
 fourth:
 
 ```
-deadweight curve     [strata and filter options]
-deadweight baseline  [filter options]
-deadweight tiers     [filter options]
-deadweight rework    <target> [--session|--commit|--note]   # §7 marker, designed elsewhere
+plimsoll curve     [strata and filter options]
+plimsoll baseline  [filter options]
+plimsoll tiers     [filter options]
+plimsoll rework    <target> [--session|--commit|--note]   # §7 marker, designed elsewhere
 ```
 
 **Decision: one binary, not two.** The marker writes to the corpus that the reader reads, both
@@ -60,7 +60,7 @@ its source is the failure mode this whole project is about.
 | `--width <cols>` | `$COLUMNS`, else 80 | clamped to 60–120 |
 | `--no-color` | auto | off when not a tty, or when `NO_COLOR` is set |
 | `--rebuild` | off | re-derive every `session_summary` (§6.6) |
-| `--corpus <dir>` | `~/.claude/deadweight` | testing hook |
+| `--corpus <dir>` | `~/.claude/plimsoll` | testing hook |
 
 **`--project` defaults to `all`, deliberately.** The corpus is cross-project by design (§3 of the
 parent) precisely so *n* accumulates. Defaulting to the current project would silently narrow every
@@ -148,8 +148,8 @@ which corpus produced it.
 ### 3.1 Header
 
 ```
-deadweight <view> · <one-line description>
-corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
+plimsoll <view> · <one-line description>
+corpus  ~/.claude/plimsoll  ·  all projects  ·  2026-06-30 → 2026-08-15
         41 sessions · 3,812 turns · 604 producing turns · 27 rework markers
         2 sessions unsummarised (unreadable transcript) · 1 corpus line skipped
 ```
@@ -157,13 +157,13 @@ corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
 The fourth line appears only when something was skipped, and it never suppresses the view. A tool
 that silently drops the data it could not read reports a cleaner corpus than it has.
 
-### 3.2 `deadweight baseline`
+### 3.2 `plimsoll baseline`
 
 The §6 report: items (a) and (b), with (c) explicitly absent rather than estimated.
 
 ```
-deadweight baseline · what is in the window before you type
-corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
+plimsoll baseline · what is in the window before you type
+corpus  ~/.claude/plimsoll  ·  all projects  ·  2026-06-30 → 2026-08-15
         41 sessions · 3,812 turns · 604 producing turns · 27 rework markers
 
   BASELINE TOKENS PER SESSION
@@ -177,7 +177,7 @@ corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
     floor. In those sessions originating work is refused from turn one.
     Per §9 enforcement degrades to `warn` there — the floor is not silently
     blocking you, and this line is why.
-    Reduce the baseline, or revise the tier. deadweight will do neither.
+    Reduce the baseline, or revise the tier. plimsoll will do neither.
 
   DECLARED, AND USED
     roster from settings.json, ~/.claude.json and .mcp.json · usage from
@@ -193,7 +193,7 @@ corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
     3 of 4 declared servers were never invoked in 41 sessions.
 
     Read this as what you paid for and did not use. It is not a
-    recommendation: deadweight cannot know what you need, and it will not
+    recommendation: plimsoll cannot know what you need, and it will not
     change your configuration.
 
   PER-SOURCE TOKEN ATTRIBUTION
@@ -218,14 +218,14 @@ Notes on the derivation:
 - Baseline per session is the `baseline_tokens` field of the session's first turn record. Sessions
   with no turn record (installed mid-session) are excluded and counted in the header.
 
-### 3.3 `deadweight curve`
+### 3.3 `plimsoll curve`
 
 Rework against tokens-at-production, stratified by shape and baseline band. This is the view the
 refusal rule exists for, and most of the time it will refuse.
 
 ```
-deadweight curve · rework against tokens-at-production
-corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
+plimsoll curve · rework against tokens-at-production
+corpus  ~/.claude/plimsoll  ·  all projects  ·  2026-06-30 → 2026-08-15
         41 sessions · 3,812 turns · 604 producing turns · 27 rework markers
 
   ATTRIBUTION   exact 6 · high 9 · medium 5 · low 4 · unattributed 3
@@ -280,7 +280,7 @@ same stratum renders marks and an ordering:
 
     OBSERVED, NOT EXPLAINED. Rework was more frequent above 50K than
     below it in this corpus (0–25K 6.7% [4.0–10.9] vs 75–100K 26.0%
-    [18.4–35.3]; intervals disjoint). deadweight does not claim the
+    [18.4–35.3]; intervals disjoint). plimsoll does not claim the
     tokens caused it. Late work in a session is also harder work, and
     that confound is not removable by stratification (§8).
 ```
@@ -327,14 +327,14 @@ Rejected alternatives, recorded because the choice will be revisited:
 The count of all turns is still printed in the header, so the reader can see how much of the
 session the denominator represents.
 
-### 3.4 `deadweight tiers`
+### 3.4 `plimsoll tiers`
 
 Current floors, their grades, and whether the corpus supports, contradicts, or cannot yet speak to
 each. This view is where the project's own claims get audited.
 
 ```
-deadweight tiers · floors, grades, and what the corpus says
-corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
+plimsoll tiers · floors, grades, and what the corpus says
+corpus  ~/.claude/plimsoll  ·  all projects  ·  2026-06-30 → 2026-08-15
         41 sessions · 3,812 turns · 604 producing turns · 27 rework markers
 
   ORIGINATING                                 floor  50,000 tokens
@@ -371,7 +371,7 @@ corpus  ~/.claude/deadweight  ·  all projects  ·  2026-06-30 → 2026-08-15
     enforcement   off
     corpus        NOT APPLICABLE — no floor to support or contradict.
                   Observed rework among mechanical producing turns is
-                  reported in `curve` for completeness. deadweight does
+                  reported in `curve` for completeness. plimsoll does
                   not propose a floor where none exists; moving floors
                   from corpus evidence is §12, deferred.
     preflight     0 recorded — mechanical work is ungated, so the skill
@@ -549,7 +549,7 @@ events and `n=40` with 20 tell you very different amounts about the underlying r
 consistent with anything from 1% to 17%, the second with 35% to 65%. A rule denominated in *n*
 treats them as equally speakable.
 
-**deadweight is the tool whose whole thesis is that everyone denominates context budgets in
+**plimsoll is the tool whose whole thesis is that everyone denominates context budgets in
 percentage when the defensible unit is absolute tokens.** Shipping a refusal rule denominated in
 sample size, when the defensible unit is precision, would reproduce that exact error inside the
 mechanism built to prevent it.
@@ -611,7 +611,7 @@ them*. This is one of the four changes in §9.
 | `n_min` (backstop) | 20 | **proposed** | `--n-min` |
 | `min_effect` (for `CONTRADICTS`) | 1.5× relative | **proposed** | `--min-effect` |
 
-Settable in `~/.claude/deadweight/config.toml`. Tightening is always permitted. **Loosening either
+Settable in `~/.claude/plimsoll/config.toml`. Tightening is always permitted. **Loosening either
 prints a warning into the rendered output**, so a screenshot of a permissive run is
 self-incriminating:
 
@@ -620,7 +620,7 @@ self-incriminating:
     shown at your instruction and should not be quoted.
 ```
 
-The self-criticism printed by `deadweight tiers --explain-n`:
+The self-criticism printed by `plimsoll tiers --explain-n`:
 
 > `max_width` = 0.35 is a **weak** bar. An interval 0.35 wide is one like 5%–40%: it says the rate
 > is known to within a factor of several, not that it is known. In the worst case (p̂ ≈ 0.5) it
@@ -678,7 +678,7 @@ thin data anyway.
   "comparisons": [],
   "comparison_refusal": "only 1 bucket is precise enough to describe",
   "trend": null,
-  "trend_note": "deadweight never fits a trend"
+  "trend_note": "plimsoll never fits a trend"
 }
 ```
 
@@ -814,7 +814,7 @@ sessions whose digest changed, which is normally one. `--rebuild` forces full re
 appends a new generation for every session; it never deletes the old ones.
 
 **Concurrency.** Two readers can run at once. Summary writing takes an exclusive `flock` on
-`~/.claude/deadweight/.lock` with a **2-second timeout**; on timeout the reader **skips writing and
+`~/.claude/plimsoll/.lock` with a **2-second timeout**; on timeout the reader **skips writing and
 renders from what already exists**, noting `summaries not updated (corpus busy)` in the header.
 Records exceed the atomic-append size, so `O_APPEND` alone is not sufficient and the lock is not
 optional. Rendering never takes the lock — reads are always available.

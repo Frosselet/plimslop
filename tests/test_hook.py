@@ -11,8 +11,8 @@ import unittest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from deadweight.measure import Session
-from deadweight.report import build_output
+from plimsoll.measure import Session
+from plimsoll.report import build_output
 
 WINDOW = 1_000_000
 

@@ -3,7 +3,7 @@
 Wire it up in `~/.claude/settings.json`:
 
     "hooks": {"UserPromptSubmit": [{"hooks": [{"type": "command",
-      "command": "python3 -m deadweight.hook 2>/dev/null || true"}]}]}
+      "command": "python3 -m plimsoll.hook 2>/dev/null || true"}]}]}
 
 The `|| true` is belt and braces. This module already refuses to fail: every
 error path returns 0 and the turn proceeds. A context tool that costs you a
@@ -14,9 +14,9 @@ import json
 import os
 import sys
 
-from deadweight.corpus import append, default_path
-from deadweight.measure import read_session
-from deadweight.report import build_output
+from plimsoll.corpus import append, default_path
+from plimsoll.measure import read_session
+from plimsoll.report import build_output
 
 #: Display only. No decision anywhere reads the percentage this produces.
 WINDOW = int(os.environ.get("CLAUDE_CONTEXT_WINDOW", "1000000"))
