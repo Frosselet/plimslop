@@ -2,7 +2,7 @@
 """Status-line context gauge — a right-aligned bar showing how much of the context
 window this session has used.
 
-The convention it serves (iladub CLAUDE.md, R76): accuracy degrades well before the
+The convention it serves (the origin repo CLAUDE.md, R76): accuracy degrades well before the
 window is full, so a loop runs in a fresh session. Blue below the handoff mark, amber
 between handoff and stop, red past the stop mark — at which point you clear the
 context or start a fresh session rather than pressing on.
@@ -15,7 +15,7 @@ taken from the LAST usage record in the session transcript. That is the real
 per-turn figure the API reports, not a proxy.
 
 THRESHOLDS ARE NOT DEFINED HERE WHEN A PROJECT DEFINES THEM. If the current project
-ships `scripts/context_budget.py` (iladub does, wired as a UserPromptSubmit hook),
+ships `scripts/context_budget.py` (the origin repo does, wired as a UserPromptSubmit hook),
 its HANDOFF_PCT / STOP_PCT / WINDOW are imported so the gauge and the hook can never
 drift apart. Elsewhere the defaults below apply.
 

@@ -6,7 +6,7 @@
 > skill, and two working hooks. **Read `HANDOFF.md` first for where things actually stand.**
 
 **Status when written: SCAFFOLD ONLY.** Nothing here is designed yet. This file is the handoff
-from the session that had the idea (2026-08-15, working in `iladub`), written so a fresh session
+from the session that had the idea (2026-08-15, working in the origin repo), written so a fresh session
 can resume without re-deriving anything.
 
 **The name is now `deadweight`** (settled 2026-08-15, after the naming check — see § Task 1
@@ -96,7 +96,7 @@ The whole cohort sits at ★0–3.
   self-pacing, thresholds, resumable checkpoints
 
 **Every one of them ships a percentage constant.** § The load-bearing finding is therefore not
-iladub's local error — it is the field's shared error. On a 1M window HighWater's 55% is 550K
+the origin repo's local error — it is the field's shared error. On a 1M window HighWater's 55% is 550K
 tokens; NoLiMa found 11 of 13 models below half their baseline at **32K**. Chroma's 18-model study
 found steady decline from the start rather than a cliff, which undercuts the threshold framing
 everyone is using, including R76's.
@@ -127,15 +127,15 @@ counts are as of 2026-08-15.
 | --- | --- | --- |
 | the gauge (live copy) | `~/.claude/statusline-context-gauge.py` | wired via `statusLine` in `~/.claude/settings.json` |
 | the gauge (repo copy) | `./statusline-context-gauge.py` | copied here 2026-08-15; **the two are now forks — reconcile before editing either** |
-| the hook | `<iladub>/scripts/context_budget.py` | `UserPromptSubmit` hook in iladub's `.claude/settings.json` |
+| the hook | `<origin>/scripts/context_budget.py` | `UserPromptSubmit` hook in the origin repo's `.claude/settings.json` |
 
-`<iladub>` = `/Volumes/WD Green/dev/git/iladub`.
+`<origin>` = `<origin>`.
 
 Both read the same figure: `input_tokens + cache_read_input_tokens + cache_creation_input_tokens`.
 The gauge prefers the status-line payload's `context_window.total_input_tokens` (present in Claude
 Code 2.1.226; verified to equal that sum) and falls back to scanning the transcript tail. It
 imports `HANDOFF_PCT` / `STOP_PCT` / `WINDOW` from `context_budget.py` when `CLAUDE_PROJECT_DIR`
-points at iladub, so the two cannot drift there.
+points at the origin repo, so the two cannot drift there.
 
 Measured while building the gauge, worth not rediscovering:
 - The status-line command runs with **no tty on any descriptor** but **with `COLUMNS` set** to the
@@ -145,7 +145,7 @@ Measured while building the gauge, worth not rediscovering:
 
 ## The load-bearing finding: the 40% rule is denominated in the wrong unit
 
-iladub's `CLAUDE.md` records R76: *never work past 40% of the context window*, with 30% as the
+the origin repo's `CLAUDE.md` records R76: *never work past 40% of the context window*, with 30% as the
 handoff mark. **Do not ship that number.** What was found on 2026-08-15:
 
 **Its evidence is weak.** One session (2026-08-09), uncontrolled, self-assessed, confounded — late
@@ -175,7 +175,7 @@ only as display.**
 2. **Positional burial** — the U-shaped "lost in the middle" effect; a fact established mid-session
    is weaker than one at either end.
 3. **Staleness — NOT a context-length effect at all.** This one dominates the real recorded
-   incidents in iladub: a residue index line consumed as fact (twice, R87 and R88), a code comment
+   incidents in the origin repo: a residue index line consumed as fact (twice, R87 and R88), a code comment
    saying "widened on this branch only" that had long since shipped, and — found the same day — a
    residue row whose own closing *instruction* was wrong. A fresh session does not fix any of
    these; **opening the primary source does.** Keep this separate in the design or the skill will
@@ -190,12 +190,12 @@ recall things fine" is not evidence that it is safe to design.
 Do not ship a constant. Ship the discipline, and **make the tool collect the evidence**: the hook
 already measures every turn, so log tokens-at-turn against outcome markers and let a user see their
 own curve. That converts an ungrounded constant into something promotable on evidence — which is
-iladub's own assert / propose / promote epistemics applied to its own tooling, and the honest
+the origin repo's own assert / propose / promote epistemics applied to its own tooling, and the honest
 answer to "is 40% right?": *measure it, don't inherit it.*
 
 ## Process decision (settled — do not re-litigate)
 
-**Brainstorm yes. Spec no. Plan no.** iladub's spec→plan ceremony is calibrated to product code with
+**Brainstorm yes. Spec no. Plan no.** the origin repo's spec→plan ceremony is calibrated to product code with
 SHACL membranes, derivation queries and falsifiable oracles, where five defects were once found in a
 plan's own text. A skill is markdown with no membrane and no oracle; the ceremony would be form
 without cause. Use `superpowers:writing-skills` when authoring.
@@ -205,7 +205,7 @@ A short brainstorm still earns its keep — the open questions below are real.
 ## Open design questions
 
 - **Is the pre-flight check even buildable as conceived?** Estimating "how much context will this
-  task consume" before running it invites a tuned constant, which iladub's §8 gate treats as prima
+  task consume" before running it invites a tuned constant, which the origin repo's §8 gate treats as prima
   facie evidence that a decision belongs elsewhere. The honest form may be far simpler — a rule
   about *task shape* ("a loop, a spec or a plan starts below N tokens, full stop") rather than a
   cost model. **Attack this premise before designing around it.**
@@ -213,7 +213,7 @@ A short brainstorm still earns its keep — the open questions below are real.
 - Scope: personal (`~/.claude/skills/`) or project skill? The gauge went user-scope so it survives
   branch switches; the same argument probably applies.
 - Should `context_budget.py`'s injected prose be replaced by a pointer at the skill?
-- Licensing: not decided. iladub uses Apache-2.0 for code and CC-BY-4.0 for vocabulary/spec; this
+- Licensing: not decided. the origin repo uses Apache-2.0 for code and CC-BY-4.0 for vocabulary/spec; this
   repo is separate and the choice is open.
 
 ## Scope discipline
@@ -230,12 +230,12 @@ is not.
 ## Note on continuity
 
 Auto-memory is **per project directory**. The notes from the originating session live under
-`~/.claude/projects/-Volumes-WD-Green-dev-git-iladub/memory/` and **will not load in this repo.**
-This file is deliberately self-contained for that reason. The iladub-side note is
+`~/.claude/projects/<origin>/memory/` and **will not load in this repo.**
+This file is deliberately self-contained for that reason. The note on the origin side is
 `context-discipline-skill-idea.md`.
 
-Unrelated and still queued in iladub: the **R87 plan** (spec written and committed on branch
-`loop-escalation-is-a-decision`). Unaffected by this work.
+Unrelated and still queued on the origin side: the **R87 plan** (spec written and committed on a
+branch there). Unaffected by this work, and named here only so it is not lost.
 
 ## Sources (single search, 2026-08-15 — NOT a literature review; vet before citing publicly)
 

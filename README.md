@@ -2,24 +2,56 @@
 
 *Know what your context is actually costing you, and what it is costing you for nothing.*
 
-**Status: the skill, both hooks, the corpus and the marker command are written and tested. The
-reader is not.** Neither hook is installed anywhere yet, so no corpus is accumulating. The design is
-complete and reviewed:
+**Status: the skill, both hooks, the corpus, the marker command and the plugin packaging are
+written and tested. The reader is not.** It installs and runs; a corpus is accumulating on the
+author's machine as of 2026-08-15, which means there is not yet enough of it to argue with any
+floor. The design is complete and reviewed:
 [`docs/superpowers/specs/2026-08-15-context-budget-skill-design.md`](docs/superpowers/specs/2026-08-15-context-budget-skill-design.md).
 
 ---
 
-## What it will be
+## What it is
 
 A skill, two hooks, and a local evidence corpus that keep a coding-agent session honest about its
 own context budget:
 
-- **A skill** — the procedure. A pre-flight check gated on *task shape*, a handoff protocol, and a
-  resumption protocol. This is the product.
+- **A skill** — the procedure. A pre-flight check gated on *task shape*, and a handoff protocol.
+  This is the product. A resumption protocol was written, tested, and **cut** — unguided sessions
+  passed it 4 times out of 4, so it was not worth the tokens.
 - **Two hooks** — `UserPromptSubmit` measures and publishes the figure; `Stop` enforces, at a
   strength you configure per tier.
 - **A corpus** — append-only, local, never transmitted. Records what your context cost and what got
   reworked, so the thresholds can eventually be argued with instead of inherited.
+
+## Installing
+
+deadweight is packaged as a Claude Code plugin: the skill and both hooks install together, and the
+hook commands resolve their own location through `${CLAUDE_PLUGIN_ROOT}`, so there is no path to
+edit by hand.
+
+**Not published yet — there is no remote.** Once there is one:
+
+```
+/plugin marketplace add <owner>/deadweight
+/plugin install deadweight@deadweight
+```
+
+Until then it installs from a local checkout, which is how the packaging was verified:
+
+```
+claude plugin marketplace add /path/to/deadweight
+claude plugin install deadweight@deadweight
+claude plugin details deadweight@deadweight     # 1 skill, 2 hooks
+```
+
+Two things worth knowing before you do that:
+
+- **A local install is a copy, not a link.** The plugin cache holds a frozen `0.1.0/`, so edits to
+  your checkout do not reach the installed plugin. For developing the skill itself, symlink
+  `skills/managing-context-budget` into `~/.claude/skills/` instead and wire the hooks by hand.
+- **The `Stop` gate ships in `block` mode for originating work**, per §9 — that tier is the one
+  with literature behind it. Set `DEADWEIGHT_MODE_ORIGINATING=warn` (or `off`) in your settings
+  `env` to soften it. The session is spoken to at most once either way.
 
 ## Marking rework
 
@@ -93,13 +125,14 @@ in the design document for the three inherited ideas and what they were called.
 | --- | --- |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command. 68 tests |
+| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command. 76 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |
 | `skills/managing-context-budget/SKILL.md` | **the skill — written and tested.** The one shipped part that exists |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios it was written against, and their results |
-| `hooks/context_budget.py` | **inherited prototype, unmodified.** Percentage-denominated; superseded by the design. Kept for reference and diffing, not for use |
+| `.claude-plugin/` | plugin and marketplace manifests. Both validate against `claude plugin validate` |
+| `hooks/` | `hooks.json` plus the two launchers the plugin invokes. They locate the package relative to themselves, so no `PYTHONPATH` is needed |
 | `statusline-context-gauge.py` | prototype gauge. **Not to be published** — see the sweep. Personal script only |
 
 ## Open

@@ -773,7 +773,7 @@ the turn whose context conditions produced the decision.
   "generation": 2,
   "final": true,
   "session_id": "0e2c1279-a768-48fb-93e6-811af62673d4",
-  "project": "/Volumes/WD Green/dev/git/iladub",
+  "project": "<origin>",
   "git_branch": "main",
   "ts_start": "2026-08-14T09:12:03Z",
   "ts_end": "2026-08-14T17:48:51Z",

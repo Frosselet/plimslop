@@ -82,12 +82,15 @@ Reading this section does not promote anything in it.
   that no trend should ever be fitted — but nothing in it has been checked. Treat as a source of
   proposals, not decisions.
 - **Licensing undecided.** The reader's minimum *n* undecided.
-- **The origin repo (`iladub`) no longer runs its own percentage-based hook.** Its
-  `.claude/settings.json` existed only to register that hook and was deleted on 2026-08-15, once
-  the replacement was installed, so the two would not both fire there. The deletion is staged but
-  **not committed** in that repo. `iladub/scripts/context_budget.py` is deliberately kept — it is
-  the original of the byte-identical reference copy at `hooks/context_budget.py` here, and
-  deleting it would strand that provenance. Do not edit either, or one becomes a fork.
+- **This repo now depends on the private origin repo in no way at all**, as of 2026-08-15. Three
+  things were true and are no longer: the origin ran a competing percentage hook (its
+  `.claude/settings.json` was deleted there — staged, **not committed**, in that repo); this repo
+  carried `hooks/context_budget.py` as a byte-identical copy kept for diffing against it (deleted;
+  the original survives on the origin side, and git history holds the copy); and the docs named
+  that repo throughout (scrubbed to "the origin repo", provenance kept, the private name and its
+  absolute path gone). What remains is history and attribution, not dependency. **The scrub was
+  mechanical** — a `sed` over six files, spot-repaired where it read badly. Prose elsewhere in
+  `BRIEF.md` may still be awkward; nothing in it is load-bearing.
 
 ## 5. Next concrete action
 

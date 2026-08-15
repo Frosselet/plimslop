@@ -487,9 +487,12 @@ interpretations, which is the signal that wording binds.
 - **The gauge.** Prior-art sweep says do not publish. Remains a personal script; the two forked
   copies (`~/.claude/statusline-context-gauge.py` and `./statusline-context-gauge.py`) still need
   reconciling before either is edited.
-- **Reconciling with iladub.** `context_budget.py` is currently a project hook in iladub with
-  `HANDOFF_PCT`/`STOP_PCT` imported by the gauge. Moving to user scope and absolute tokens breaks
-  that import; sequencing not yet planned.
+- **Reconciling with the origin repo — settled 2026-08-15.** The replacement was installed
+  user-scope first, then the origin's `.claude/settings.json` was deleted, so the two never both
+  fired. The feared breakage did not occur: the gauge's `HANDOFF_PCT`/`STOP_PCT` import is guarded
+  by an existence check and degrades to its own defaults. This repo's reference copy of
+  `context_budget.py` was deleted with it — a copy kept for diffing against a private repo is a
+  dependency on that repo, and the original still exists on the origin side.
 - **The stated *n*** for the reader's refusal threshold is not yet chosen.
 
 ## 12. Deferred
