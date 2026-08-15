@@ -101,14 +101,28 @@ Reading this section does not promote anything in it.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
 - **Two reps per test arm**, against a method asking for five. Separation was total and reps
   converged, but the sample is thin.
-- **`SKILL.md` § Delivering the gate is untested.** It ships on **one** observed session (2026-08-15,
-  iladub R87) in which the agent followed the skill exactly and damaged the loop anyway — announcing
-  its shape before any work, then halting mid-task to ask permission to continue. The prior wording
-  caused it: step 1's *"say it out loud"* and *"a sentence someone can see"*. `TESTS.md` § Scenario D
-  is written and **never run** — no baseline, no reps. It is the weakest section in the skill.
-  The risk it introduces is the over-correction: an agent that reads "invisible under the floor" as
-  licence to stay quiet *over* it. Scenario D's D2 exists to catch that and has caught nothing,
-  because nobody has run it.
+- **`SKILL.md` § Delivering the gate is HALF REFUTED by its own test, and has not been corrected.**
+  It shipped on one observed session (2026-08-15, iladub R87) before `TESTS.md` § Scenario D was run.
+  Scenario D was then run the same day, 5 reps × 4 arms, and the numbers are in `TESTS.md`:
+  - **The under-floor rule made the behaviour worse** — 1.0 announcement sentences against a **0.4**
+    control, 4/5 announcing against 2/5. The control was barely failing, so by this project's own
+    method the guidance should never have been written. Agents now emit a compressed *log receipt*;
+    one, told the first sentence belongs to the user, kept the receipt and moved it to the end.
+  - **The over-floor recipe works** — 10.4 → **3.8** sentences, 0/5 over-correcting.
+  - **Its ≤2-sentence budget contradicts its own required parts** (reversibility, and step 5's log),
+    so 0/5 pass strictly while 5/5 pass if those parts are counted as part of the gate.
+  - **The "never a question that ends the turn" clause is unsupported** — 0/5 in both baselines.
+
+  **Recommended and NOT DONE:** delete the under-floor rule, keep the over-floor recipe, fix its
+  sentence budget to match its own parts, drop or demote the question clause. That is originating
+  work; it was deliberately not done at 206K in the session that measured it. Until someone does it,
+  the shipped section contains one rule its own test says is counter-productive.
+- **Agents claim to log without logging.** In D1-treatment **no rep executed `preflight`** — all four
+  announcements were claims with no command run. The skill's own warning is that a logging step you
+  cannot run is worse than none because it looks done; this is a level below, and it means corpus
+  records are missing precisely where an agent believed it had written one. No scenario covers it,
+  and it matters more than anything else in this entry: the corpus is the only thing that can ever
+  validate a floor, and this is a silent hole in it.
 - **The `slop` in the name is unresolved, not resolved.** Design §2 rejects quality-marking outright;
   *slop* is a quality word. `README.md` § Why `plimslop` argues the tool measures the water and not
   the goods, which is a good answer to a real objection, not a disappearance of it.

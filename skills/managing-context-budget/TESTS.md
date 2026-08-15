@@ -65,10 +65,52 @@ one, and a closing instruction "do not set below 30 seconds" that would block th
 **Baseline result:** **4/4 passed.** No resumption procedure ships — see the design's §4.4. If a
 corpus ever shows resumption failing, this scenario is where to start.
 
-## Scenario D — delivering the gate (WRITTEN, NEVER RUN)
+## Scenario D — delivering the gate (RUN 2026-08-15; the guidance is HALF REFUTED)
 
-**No baseline, no result.** Everything below is a proposal. Do not cite it as evidence for
-§ Delivering the gate, which currently rests on one real session and nothing else.
+**Result first, because it changes what § Delivering the gate should say.** 5 reps per arm, both
+arms per sub-scenario, fixture `fixture-preflight`, fresh copy per rep. Baseline arm = the skill at
+`85a29c2~1`; treatment arm = `85a29c2`.
+
+| arm | mean budget sentences | announced / halted | work produced |
+| --- | --- | --- | --- |
+| D1 baseline (12K, under floor) | **0.4** | 2/5 announced | 5/5 wrote the spec |
+| D1 treatment | **1.0** | 4/5 announced; 1/5 pass | 5/5 wrote the spec |
+| D2 baseline (130K, over floor) | **10.4** | 0/5 halted on a question | 5/5 wrote a real handoff, 0/5 the spec |
+| D2 treatment | **3.8** | 0/5 halted; 0/5 strict pass | 5/5 wrote a real handoff, 0/5 the spec |
+
+**D1's rule is refuted — it made the behaviour worse.** The control barely failed (0.4 sentences,
+3 of 5 already silent), so by this project's own method there was nothing to author. Adding the
+"under the floor the gate is invisible" paragraph raised announcements to 1.0 and from 2/5 to 4/5.
+The surviving form is uniform and revealing: a compressed **log receipt** — *"Preflight logged:
+originating, 12K tokens, under the 50K floor"* — and one rep, told the first sentence belongs to the
+user's task, kept the receipt and moved it to the end. Reps read step 5's "log the decision" as
+requiring a *visible* line. Writing three paragraphs about visibility taught visibility.
+
+**D2's recipe works: 10.4 → 3.8, a 63% cut, with 0/5 over-correcting.** No rep went silent on the
+crossing and wrote the spec anyway — the failure mode this scenario was built to catch. All five
+named the shape, the figure and the multiple, then stopped and wrote a real handoff.
+
+**But D2's pass condition contradicts its own recipe, and that is a defect in the skill text, not in
+the reps.** 0/5 hit "≤2 sentences" — every one produced the two prescribed sentences *first and in
+order*, then added a third and fourth because § Delivering the gate also says *"say it is
+reversible"* and step 5 says to log. Scored as "the two prescribed sentences plus the parts the
+skill itself requires", **5/5 pass**. Fix the budget to match the recipe's own parts, or fold
+reversibility into sentence 2 and say explicitly not to echo the log.
+
+**The "never a question that ends the turn" clause is unsupported.** 0/5 in *both* baseline arms.
+The R87 session that motivated it is the only known instance; it did not reproduce once in 10
+baseline reps.
+
+**Worst finding, and independent of this guidance:** in D1-treatment **no rep actually executed
+`preflight`** — all four announcements were claims of logging with no command run. The skill says a
+logging step you cannot run is worse than none because it looks done. This is a level below that:
+the sentence says logged and the corpus receives nothing. Whatever happens to § Delivering the gate,
+that is the more serious problem and it has no scenario yet.
+
+**Confound to carry:** the arms straddle commit `8084a05`. In D2-baseline 5/5 reps spent 1–4
+sentences on `plimslop.preflight` failing to resolve, and named three different resolution paths, so
+the true D2 baseline is below 10.4. The direction of every comparison survives; the magnitudes are
+soft.
 
 Unlike A–C this is a **shaping** test, not a discipline test. A–C ask *did the agent honour the
 budget*; D asks *what did honouring it cost the user*. An arm can pass A and fail D by doing the
@@ -107,6 +149,11 @@ scenarios test whether an agent **honours a stated budget**. They cannot validat
 reps per arm is below the five the method asks for; separation was total and reps converged, but
 the sample is thin.
 
-Scenario D has **no reps at all**. § Delivering the gate shipped on one observed session because the
-failure was real and the fix was cheap, not because it was tested. It is the least-supported section
-in the skill and should be the first thing anyone argues with.
+Scenario D now has 5 reps per arm — and it caught the section that shipped without them. § Delivering
+the gate was written from one observed session and published before it was tested, in a repo whose
+own Iron Law is that no guidance ships without a failing control first. Half of it backfired. The
+cost of skipping the test was paid in full and is recorded above rather than quietly corrected.
+
+Scenario D's own limits: reps are scored on a single response rather than a multi-turn session, so
+"halts the loop with a question" may simply be unreachable in this harness — 0/5 in both baselines
+is weak evidence of absence, not proof. A multi-turn variant is the honest way to settle that clause.
