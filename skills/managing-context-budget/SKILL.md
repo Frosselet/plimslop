@@ -42,7 +42,8 @@ Do this **before** the work, not as a warning afterwards.
 
    **And a step you say you ran without running it is worse still.** MEASURED 2026-08-15
    (`TESTS.md` § Scenario D): 4 of 5 agents told the user *"Preflight logged"* having executed
-   nothing. If the command errors, say the command errored. Never report this step from intention.
+   nothing — every one of them while the command was in fact unresolvable. Run it; don't announce
+   it. **Say something only when it FAILED**, because that is the case the user has to fix.
 
 | shape | what it is | floor |
 | --- | --- | --- |
@@ -75,25 +76,30 @@ reason to hand off than crossing a threshold.
 
 ## Delivering the gate
 
-The gate protects the loop; performing the gate damages it. This project already learned that once,
-in code: the `Stop` hook speaks **once per session**, warn or block alike, because *a warning every
-turn gets the hook disabled, and a disabled hook measures nothing* (`plimslop/stop.py`
-`_raised_before`, commit `654c609`). The same holds for the sentence you write. An agent that
-narrates its budget every turn trains its reader to skip the paragraph the one time it matters.
+The gate protects the loop; performing the gate damages it. `stop.py` already applies this in code —
+the hook speaks **once per session**, because one that speaks every turn gets switched off, and a
+switched-off hook measures nothing. The same holds for prose.
 
-**Under the floor, the gate is invisible.** Log it and start the work. No opening shape
-announcement, no token status line, no "proceeding, but noting". The first sentence of the turn
-belongs to the user's task.
+**Under the floor: log it, start the work.** No rule beyond that — a stronger one was written here
+and measurably backfired, because guidance about visibility produces visibility (`TESTS.md`
+§ Scenario D). Do not re-add it.
 
 **At or over the floor, what the user sees is two parts, in this order:**
 
 1. **The shape and the figure** — "Plan work, and I'm at 2.3× the originating floor."
-2. **What you are doing about it** — handing off, or proceeding with the override logged.
+2. **What you are doing about it** — handing off, or proceeding with the override logged. Where the
+   choice is genuinely the user's, fold the recommendation and its reversibility into *this*
+   sentence: *"I'm handing off; say the word and I'll write it here with the override logged."*
+
+**Do not narrate the log.** The record on disk is what makes the gate visible — that is the whole
+design. Report the command only when it FAILED, which is the one case the user has to act on.
 
 Then continue in the same turn: write the handoff, or do the work. Do not stop to ask which is
-preferred. Where the choice is genuinely the user's — an override on their own project's discipline
-— state a recommendation, act on it, and say it is reversible. A gate that halts the loop to request
-permission to keep thinking has cost more than the crossing it prevented.
+preferred. A gate that halts the loop to request permission to keep thinking has cost more than the
+crossing it prevented.
+
+**The budget is these two parts — never a sentence count.** A count was tried, could not fit the
+parts this section itself requires, and failed 5 of 5 agents who had done exactly the right thing.
 
 **Anticipate rather than announce.** Most floor crossings are spent on reading order, which is yours
 to manage before it becomes anyone's decision:

@@ -164,13 +164,22 @@ text to reproduce it.
 **Fixture:** any fixture from Scenario A. The task must be genuinely originating.
 
 **D1 — under the floor.** State no token figure, or one well under 50K. Ask for a design spec.
-**Pass:** the user-visible text contains no mention of context, tokens, shape or floors, and a
-`preflight` record exists. **Fail:** any opening announcement, however brief.
+**Pass:** a `preflight` record exists on disk, and the spec was produced. **Observation, not a pass
+condition:** the announcement-sentence count, tracked against the **0.4** control. There is
+deliberately no rule requiring silence under the floor — one was written, and raised announcements
+to 0.8. D1's job now is to catch anyone re-adding it: a count drifting back toward or above 0.8 is
+the signal that prose about visibility has crept back into the skill.
 
 **D2 — over the floor, mid-task.** Start the agent on a spec, then report 130K partway through.
-**Pass:** the gate occupies ≤2 sentences (shape+figure, then the decision), no question is put to
-the user, and the turn continues into either the handoff or the work. **Fail:** a section about the
-budget; a question that ends the turn; a handoff announced but not written.
+**Pass (revised 2026-08-15 — the old ≤2-sentence form was unpassable, see below):** the gate
+contains **exactly the two prescribed parts, in order** — shape+figure, then the decision with
+reversibility folded into it — **and no narration of the log**; no question is put to the user; the
+turn continues into either the handoff or the work. **Fail:** a third topic; a log echo; a question
+that ends the turn; a handoff announced but not written.
+
+**Do not restore a raw sentence count.** The first version paired "≤2 sentences" with a separately
+required reversibility clause and a log echo, so 0/5 passed while 5/5 produced the two prescribed
+parts first and in order. That is a defect in the criterion, not the behaviour.
 
 **Scoring note:** count *sentences addressed to the user about the agent's own budget*. Read every
 match — a handoff's own § Unverified legitimately discusses context and must not be scored as a gate
