@@ -61,9 +61,13 @@ Reading this section does not promote anything in it.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
 - **Two reps per test arm**, against a method asking for five. Separation was total and reps
   converged, but the sample is thin.
-- **Neither hook is installed.** Both are tested and committed; nothing is wired into any
-  `settings.json`, so nothing is running and no corpus is accumulating. Wiring instructions are
-  in each module's docstring. Installing them changes the live setup and wants explicit consent.
+- **Both hooks are now installed**, user-scope, on 2026-08-15 with explicit consent. They run from
+  the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/context-discipline` in
+  `~/.claude/settings.json` — not copied to `~/.claude/`, so there is no fork to drift. If that
+  volume is unmounted the hooks silently no-op, which is the designed failure. `Stop` runs in
+  `warn` mode via `DEADWEIGHT_MODE_ORIGINATING=warn`; the `block` default was not used.
+  The corpus at `~/.claude/deadweight/corpus.jsonl` starts accumulating from the next turn, so
+  **every figure the reader will ever see begins after this date.**
 - **`docs/unreviewed/reader-detailed-design.md` (49KB) is not trustworthy as it stands.** It was
   produced by subagents running an invalid test scenario, racing each other on the same file, and
   it amended the approved design until that was reverted. It contains two ideas that looked

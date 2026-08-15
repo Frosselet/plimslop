@@ -134,6 +134,63 @@ class OneStepOverride(StopHookCase):
         self.assertIn("block", kinds)
 
 
+class RaisedOncePerSession(StopHookCase):
+    """§9's one-step constraint applies to warnings too. A hook that speaks at
+    the end of every single turn past the floor gets switched off wholesale,
+    and then nothing is measured at all — which is the failure the whole
+    project dies of, not a matter of taste."""
+
+    def warned(self, out):
+        return bool(out and out.get("systemMessage"))
+
+    def test_a_warning_is_not_repeated_every_turn(self):
+        path = transcript(20_000, 190_000)
+        self.addCleanup(os.unlink, path)
+        payload = {"session_id": "s", "transcript_path": path}
+        warn = {"originating": "warn"}
+
+        _, first = self.run_hook(payload, modes=warn)
+        _, second = self.run_hook(payload, modes=warn)
+
+        self.assertTrue(self.warned(first))
+        self.assertFalse(self.warned(second))
+
+    def test_a_different_session_is_still_warned(self):
+        path = transcript(20_000, 190_000)
+        self.addCleanup(os.unlink, path)
+        warn = {"originating": "warn"}
+
+        self.run_hook({"session_id": "s1", "transcript_path": path}, modes=warn)
+        _, out = self.run_hook({"session_id": "s2", "transcript_path": path},
+                               modes=warn)
+
+        self.assertTrue(self.warned(out))
+
+    def test_a_warning_is_recorded_as_a_warning_not_as_a_block(self):
+        """Both are 'the gate spoke once', but a warning is not a refusal and
+        the corpus must not let the reader count it as one."""
+        path = transcript(20_000, 190_000)
+        self.addCleanup(os.unlink, path)
+
+        self.run_hook({"session_id": "s", "transcript_path": path},
+                      modes={"originating": "warn"})
+
+        with open(self.corpus) as fh:
+            records = [json.loads(line) for line in fh if line.strip()]
+        self.assertEqual(records[0]["type"], "block")
+        self.assertEqual(records[0]["action"], "warn")
+
+    def test_a_block_is_recorded_as_a_block(self):
+        path = transcript(20_000, 190_000)
+        self.addCleanup(os.unlink, path)
+
+        self.run_hook({"session_id": "s", "transcript_path": path})
+
+        with open(self.corpus) as fh:
+            records = [json.loads(line) for line in fh if line.strip()]
+        self.assertEqual(records[0]["action"], "block")
+
+
 class NeverBlockIntoAnUnsatisfiableState(StopHookCase):
     """§5: if the baseline alone exceeds the floor, blocking would refuse all
     work from turn one and the tool gets uninstalled inside a day."""

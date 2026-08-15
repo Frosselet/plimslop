@@ -11,10 +11,12 @@ starts, and it stays soft. The two are complements.
 
 Three constraints, all load-bearing (design §9):
 
-- **One-step override.** A session is blocked at most once. A block you cannot
-  pass in a single step gets the hook disabled wholesale, and then nothing is
-  measured at all. The override is recorded, because an override nobody can
-  count is a gate nobody can evaluate.
+- **One-step override.** A session is spoken to at most once — blocked or
+  warned. A block you cannot pass in a single step gets the hook disabled
+  wholesale, and a warning repeated at the end of every turn gets it disabled
+  just as fast; then nothing is measured at all. Both are recorded, and the
+  record says which, because an override nobody can count is a gate nobody can
+  evaluate.
 - **Never block into an unsatisfiable state.** If the baseline alone exceeds
   the floor, blocking would refuse every turn from the first one.
 - **Never block a subagent.** Its context is separate; delegation is the
@@ -49,12 +51,14 @@ def _modes(overrides=None):
     return modes
 
 
-def decide(session, blocked_before, is_subagent, modes):
+def decide(session, raised_before, is_subagent, modes):
     """Return (action, reason). Action is 'allow', 'warn' or 'block'."""
     if is_subagent:
         return "allow", ""
     if session.tokens < LOWEST_FLOOR:
         return "allow", ""
+    if raised_before:
+        return "allow", ""      # said once per session, in any mode
 
     over = (f"This session is at {session.tokens:,} absolute tokens, past the "
             f"{LOWEST_FLOOR:,} originating floor. Invoke the {SKILL} skill: name "
@@ -67,9 +71,6 @@ def decide(session, blocked_before, is_subagent, modes):
             f"{LOWEST_FLOOR:,} originating floor before any conversation. The gate "
             "cannot be satisfied in this configuration, so it is not enforced. "
             "Reduce the baseline or revise the tier.")
-
-    if blocked_before:
-        return "warn", over + " (Already raised once this session; not blocking again.)"
 
     mode = modes.get("originating", "block")
     if mode == "off":
@@ -100,15 +101,15 @@ def main(stdin=sys.stdin, stdout=sys.stdout, corpus_path=None, modes=None):
     path = corpus_path if corpus_path is not None else default_path()
     session_id = payload.get("session_id")
     action, reason = decide(session,
-                            blocked_before=_blocked_before(path, session_id),
+                            raised_before=_raised_before(path, session_id),
                             is_subagent=bool(payload.get("agent_id")),
                             modes=_modes(modes))
 
     if action == "allow":
         return 0
 
+    _record(path, session_id, session, action)
     if action == "block":
-        _record(path, session_id, session)
         output = {"hookSpecificOutput": {"hookEventName": "Stop",
                                          "permissionDecision": "deny",
                                          "permissionDecisionReason": reason}}
@@ -122,15 +123,20 @@ def main(stdin=sys.stdin, stdout=sys.stdout, corpus_path=None, modes=None):
     return 0
 
 
-def _blocked_before(path, session_id):
-    """Whether this session has already been blocked once."""
+def _raised_before(path, session_id):
+    """Whether this session has already been spoken to once — blocked or
+    merely warned. Warnings are rationed for the same reason blocks are: a
+    hook that speaks at the end of every turn gets switched off, and a hook
+    that is switched off measures nothing."""
     return any(r.get("type") == "block" and r.get("session") == session_id
                for r in read(path))
 
 
-def _record(path, session_id, session):
+def _record(path, session_id, session, action):
+    """One record per session, carrying whether the gate refused or only
+    spoke. The reader must not be able to count a warning as a refusal."""
     try:
-        append({"type": "block", "session": session_id,
+        append({"type": "block", "action": action, "session": session_id,
                 "tokens": session.tokens, "baseline": session.baseline,
                 "floor": LOWEST_FLOOR}, path)
     except Exception:
