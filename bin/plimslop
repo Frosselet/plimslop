@@ -1,0 +1,46 @@
+#!/bin/sh
+# plimslop — one entry point for the three commands that are not hooks.
+#
+# WHY THIS EXISTS: `preflight`, `mark` and `reader` are modules inside the
+# package, so reaching them needs PYTHONPATH pointing at whichever copy of
+# plimslop you actually want. The README used to hand out aliases that globbed
+# the plugin cache and took the last match — which silently ran a frozen copy
+# while the user was editing a checkout, and gave no sign of doing so.
+#
+# This script resolves the package RELATIVE TO ITSELF, following symlinks, the
+# same way hooks/ resolve theirs. Whichever copy of the script you invoke is the
+# copy of the package you get. Symlink it onto PATH and it stays correct.
+#
+# A logging step you cannot run is worse than none, because it looks done.
+set -e
+
+case "$1" in
+    preflight|mark|reader)
+        cmd="$1"
+        shift
+        ;;
+    ""|-h|--help)
+        echo "usage: plimslop {preflight|mark|reader} [args...]" >&2
+        echo "  preflight  log a pre-flight gate decision" >&2
+        echo "  mark       record work that had to be redone" >&2
+        echo "  reader     read the corpus" >&2
+        exit 2
+        ;;
+    *)
+        echo "plimslop: unknown command '$1' (expected preflight, mark or reader)" >&2
+        exit 2
+        ;;
+esac
+
+# Follow symlinks to the real script, so `ln -s .../bin/plimslop ~/bin/` works.
+target=$0
+while [ -L "$target" ]; do
+    link=$(readlink "$target")
+    case $link in
+        /*) target=$link ;;
+        *)  target=$(dirname "$target")/$link ;;
+    esac
+done
+root=$(CDPATH= cd -- "$(dirname -- "$target")/.." && pwd)
+
+PYTHONPATH="$root${PYTHONPATH:+:$PYTHONPATH}" exec python3 -m "plimslop.$cmd" "$@"

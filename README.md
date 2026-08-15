@@ -45,17 +45,26 @@ claude plugin details plimslop@plimslop     # 1 skill, 2 hooks
 ### Running the commands after a plugin install
 
 The hooks and the skill work immediately, but `plimslop.mark`, `plimslop.preflight` and
-`plimslop.reader` are Python modules in the plugin cache, not on your path. Add this to your shell
-profile:
+`plimslop.reader` are Python modules inside the package, not on your path. `bin/plimslop` is the
+entry point: it resolves the package relative to itself, following symlinks, so whichever copy of
+the script you invoke is the copy of the package you get.
 
 ```sh
-export PLIMSLOP_HOME="$(ls -d ~/.claude/plugins/cache/plimslop/plimslop/*/ 2>/dev/null | tail -1)"
-alias plimslop-reader='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.reader'
-alias plimslop-mark='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.mark'
-alias plimslop-preflight='PYTHONPATH="$PLIMSLOP_HOME" python3 -m plimslop.preflight'
+ln -s ~/.claude/plugins/cache/plimslop/plimslop/*/bin/plimslop ~/bin/plimslop   # plugin install
+ln -s /path/to/plimslop/bin/plimslop ~/bin/plimslop                             # or a checkout
+
+plimslop preflight --shape originating --tokens 190000 --decision proceed
+plimslop mark path/to/file.py --note "rewritten from scratch"
+plimslop reader summary
 ```
 
-From a git checkout none of this is needed — run `python3 -m plimslop.<command>` from the repo root.
+From a git checkout you can also run `python3 -m plimslop.<command>` from the repo root.
+
+**Do not glob the plugin cache to build an alias.** Earlier versions of this README suggested
+`ls -d ~/.claude/plugins/cache/plimslop/plimslop/*/ | tail -1`, which silently pins whichever
+version sorts last — so a session could log against a frozen `0.1.0/` while its author was editing a
+checkout, with nothing on screen to say so. Symlink the script instead; it cannot disagree with
+itself about which package it belongs to.
 
 Two things worth knowing before you do that:
 
@@ -63,8 +72,11 @@ Two things worth knowing before you do that:
   your checkout do not reach the installed plugin. For developing the skill itself, symlink
   `skills/managing-context-budget` into `~/.claude/skills/` instead and wire the hooks by hand.
 - **The `Stop` gate ships in `block` mode for originating work**, per §9 — that tier is the one
-  with literature behind it. Set `DEADWEIGHT_MODE_ORIGINATING=warn` (or `off`) in your settings
+  with literature behind it. Set `PLIMSLOP_MODE_ORIGINATING=warn` (or `off`) in your settings
   `env` to soften it. The session is spoken to at most once either way.
+  (This read `DEADWEIGHT_MODE_ORIGINATING` until 2026-08-15 — a leftover from the rename. The code
+  has always read `PLIMSLOP_MODE_` (`plimslop/stop.py:47`), so the documented variable did nothing
+  and the gate stayed in `block` for anyone who followed the README to soften it.)
 
 ## Reading the corpus
 
