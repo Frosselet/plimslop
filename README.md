@@ -2,8 +2,8 @@
 
 *Know what your context is actually costing you, and what it is costing you for nothing.*
 
-**Status: the skill, both hooks, the corpus, the marker command and the plugin packaging are
-written and tested. The reader is not.** It installs and runs; a corpus is accumulating on the
+**Status: complete as designed — skill, both hooks, corpus, marker command, reader, plugin
+packaging. Not validated.** It installs and runs; a corpus is accumulating on the
 author's machine as of 2026-08-15, which means there is not yet enough of it to argue with any
 floor. The design is complete and reviewed:
 [`docs/superpowers/specs/2026-08-15-context-budget-skill-design.md`](docs/superpowers/specs/2026-08-15-context-budget-skill-design.md).
@@ -52,6 +52,21 @@ Two things worth knowing before you do that:
 - **The `Stop` gate ships in `block` mode for originating work**, per §9 — that tier is the one
   with literature behind it. Set `DEADWEIGHT_MODE_ORIGINATING=warn` (or `off`) in your settings
   `env` to soften it. The session is spoken to at most once either way.
+
+## Reading the corpus
+
+```
+python3 -m deadweight.reader curve      # rework against tokens at production
+python3 -m deadweight.reader baseline   # what is in the window before you type
+python3 -m deadweight.reader tiers      # the floors, and what the corpus can say
+```
+
+**Expect it to refuse.** Below a stated *n* it prints the count and declines to state a rate at
+all — `n=3 — this shows nothing` — and comparing two bands takes more data than stating one rate.
+Both thresholds are printed on every run and labelled `PROPOSED`, because no power calculation
+stands behind either yet. A floor is demoted only on an equivalence bound, never on a failure to
+find a difference: otherwise a thin corpus demotes a floor by being underpowered, which is exactly
+the error that produced the rule this project replaces.
 
 ## Marking rework
 
@@ -126,7 +141,7 @@ in the design document for the three inherited ideas and what they were called.
 | `LICENSE` | Apache-2.0, canonical text. See § Licensing for the prose split |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command. 76 tests |
+| `deadweight/` | the code — two hooks, measurement, tiers, corpus, the marker command, the reader. 89 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |

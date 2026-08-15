@@ -25,7 +25,7 @@ carrying the evidence grade that supports it.
 | `skills/managing-context-budget/SKILL.md` | the shipped skill. Two procedures, not three |
 | `skills/managing-context-budget/TESTS.md` | the pressure scenarios and their results. Fixtures are in `tests/fixtures/` |
 | `deadweight/` | the code. `measure.py`, `tiers.py`, `report.py`, `corpus.py`, `hook.py`, `stop.py`, `mark.py` |
-| `tests/` | 76 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
+| `tests/` | 89 tests. Run `python3 -m unittest discover -s tests -t .` before believing anything below |
 | `git log` | commit messages carry the reasoning for each decision, including the ones that were reversed |
 | `docs/unreviewed/reader-detailed-design.md` | **quarantined, see §4.** Not approved, not reviewed |
 
