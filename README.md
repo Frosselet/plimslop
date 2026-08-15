@@ -50,8 +50,11 @@ entry point: it resolves the package relative to itself, following symlinks, so 
 the script you invoke is the copy of the package you get.
 
 ```sh
-ln -s ~/.claude/plugins/cache/plimslop/plimslop/*/bin/plimslop ~/bin/plimslop   # plugin install
-ln -s /path/to/plimslop/bin/plimslop ~/bin/plimslop                             # or a checkout
+mkdir -p ~/.local/bin      # already on PATH on most systems; ~/bin often is not
+ln -s ~/.claude/plugins/cache/plimslop/plimslop/*/bin/plimslop ~/.local/bin/plimslop  # plugin
+ln -s /path/to/plimslop/bin/plimslop ~/.local/bin/plimslop                            # checkout
+
+which plimslop           # if this prints nothing, the commands below will not run
 
 plimslop preflight --shape originating --tokens 190000 --decision proceed
 plimslop mark path/to/file.py --note "rewritten from scratch"
@@ -81,9 +84,9 @@ Two things worth knowing before you do that:
 ## Reading the corpus
 
 ```
-python3 -m plimslop.reader curve      # rework against tokens at production
-python3 -m plimslop.reader baseline   # what is in the window before you type
-python3 -m plimslop.reader tiers      # the floors, and what the corpus can say
+plimslop reader curve      # rework against tokens at production
+plimslop reader baseline   # what is in the window before you type
+plimslop reader tiers      # the floors, and what the corpus can say
 ```
 
 **Expect it to refuse.** Below a stated *n* it prints the count and declines to state a rate at
@@ -98,7 +101,7 @@ the error that produced the rule this project replaces.
 The pre-flight is only worth anything if its circumventions are countable:
 
 ```
-python3 -m plimslop.preflight --shape originating --tokens 190000 --decision proceed
+plimslop preflight --shape originating --tokens 190000 --decision proceed
 ```
 
 **Declaring `proceed` above the floor is recorded as `overridden`**, whatever you called it — the
@@ -112,10 +115,10 @@ The corpus only becomes evidence if the rework half of it gets written. When you
 to be redone, mark it — at the moment you discover it, not when it was produced:
 
 ```
-python3 -m plimslop.mark plimslop/parser.py --note "rewritten from scratch"
-python3 -m plimslop.mark "plimslop/parser.py:40-58"     # blame the hunk, not the file
-python3 -m plimslop.mark "the retry approach I abandoned" # no artefact: still recorded
-python3 -m plimslop.mark README.md --session <session-id> # or --commit <sha>
+plimslop mark plimslop/parser.py --note "rewritten from scratch"
+plimslop mark "plimslop/parser.py:40-58"     # blame the hunk, not the file
+plimslop mark "the retry approach I abandoned" # no artefact: still recorded
+plimslop mark README.md --session <session-id> # or --commit <sha>
 ```
 
 It maps the target back to the turn that produced it — `git blame` for the commit, the turn records

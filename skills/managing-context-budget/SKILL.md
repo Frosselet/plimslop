@@ -28,7 +28,7 @@ Do this **before** the work, not as a warning afterwards.
 5. **Log the decision** — including when you proceed anyway:
 
    ```
-   python3 -m plimslop.preflight --shape originating --tokens 190000 --decision proceed
+   plimslop preflight --shape originating --tokens 190000 --decision proceed
    ```
 
    Declaring `proceed` above the floor is recorded as `overridden`, whatever you called it. That
@@ -36,9 +36,13 @@ Do this **before** the work, not as a warning afterwards.
    and a gate whose circumvention nobody can count is a gate that will be circumvented. If the rate
    turns out high, the tiers are wrong — not you.
 
-   If `python3 -m plimslop.preflight` does not resolve, the package is not on your path — it is in
-   the plugin cache. The README's § Installing gives the one-line alias. **A logging step you
-   cannot run is worse than none, because it looks done.**
+   If `plimslop` is not on your path, `bin/plimslop` has not been symlinked — README § Installing
+   gives the one `ln -s`. From a checkout, `python3 -m plimslop.preflight …` works from the repo root
+   and nowhere else. **A logging step you cannot run is worse than none, because it looks done.**
+
+   **And a step you say you ran without running it is worse still.** MEASURED 2026-08-15
+   (`TESTS.md` § Scenario D): 4 of 5 agents told the user *"Preflight logged"* having executed
+   nothing. If the command errors, say the command errored. Never report this step from intention.
 
 | shape | what it is | floor |
 | --- | --- | --- |
@@ -125,8 +129,8 @@ record of what actually got reworked. When you find work that had to be redone �
 abandoned — mark it **at the moment you discover it**, not when it was produced:
 
 ```
-python3 -m plimslop.mark path/to/file.py --note "rewritten from scratch"
-python3 -m plimslop.mark "the approach I abandoned"        # no artefact is fine
+plimslop mark path/to/file.py --note "rewritten from scratch"
+plimslop mark "the approach I abandoned"                   # no artefact is fine
 ```
 
 It maps the target back to the turn that produced it via `git blame` and the turn log. This is a
