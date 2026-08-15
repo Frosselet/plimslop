@@ -71,6 +71,15 @@ Reading this section does not promote anything in it.
   with `corpus_path=None`, falling through to `default_path()`; 17 fabricated records were removed
   and 14 real ones kept. **If any real record was misclassified as synthetic, it is gone** — the
   pre-purge backup was only ever in a session scratchpad.
+- **CORRECTION: the "60,000 baseline" finding was an artifact, not a finding.** Commit `9db0e90`'s
+  message claims the reader "found something real — an observed baseline of 60,000 exceeds the
+  50,000 originating floor... the first thing the corpus has said that nobody put there on
+  purpose". **That is false.** The 60,000 came from `tests/test_entrypoint.py:39`
+  (`transcript(60_000, 190_000)`, session `s1`, cwd `/tmp/p`) writing to the live corpus before the
+  isolation fix. It was purged as synthetic hours later without anyone connecting the two. The
+  corpus has held exactly one distinct baseline throughout: **34,650**, from one session. The
+  commit message cannot be edited without rewriting public history, so it stands with this
+  correction beside it. **The corpus has produced no findings. It is not old enough to have any.**
 - **`cumulativeDroppedTokens` semantics.** Implemented as a running total because the field is named
   that way; no local transcript has had more than one compaction, so it has never been observed.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
