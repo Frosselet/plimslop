@@ -61,6 +61,13 @@ Reading this section does not promote anything in it.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
 - **Two reps per test arm**, against a method asking for five. Separation was total and reps
   converged, but the sample is thin.
+- **The skill is installed** at `~/.claude/skills/managing-context-budget`, a **symlink** to
+  `skills/managing-context-budget/` in this checkout — so editing the skill here changes the
+  installed one, by design. It is the only symlink in that directory; the others are real
+  directories. The loader **does** follow symlinks and picked it up without a restart — observed
+  directly: the skill appeared in the live session's skill list seconds after the link was made.
+  If the WD Green volume is unmounted the link dangles and the skill silently disappears, which is
+  the same failure mode as the hooks.
 - **Both hooks are now installed**, user-scope, on 2026-08-15 with explicit consent. They run from
   the repo checkout via `PYTHONPATH=/Volumes/WD Green/dev/git/context-discipline` in
   `~/.claude/settings.json` — not copied to `~/.claude/`, so there is no fork to drift. If that
