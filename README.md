@@ -86,6 +86,35 @@ attached to, and says `inferred` when the mapping was made from timestamps rathe
 outright. Markers it cannot attribute are **recorded as unattributed, never dropped**: the
 unattributed fraction is how you tell a thin corpus from a solid one.
 
+## Why `plimslop`
+
+In 1876 Parliament made it a crime to load a British ship past a line painted on her hull. The man
+who spent a decade shouting about it was Samuel Plimsoll, and the vessels he was shouting about
+were *coffin ships*: overloaded, over-insured, and worth more to their owners on the seabed than at
+the far end of the voyage. The crews were worth nothing to anybody in either case, so they drowned
+on schedule.
+
+The fix was not a rule about seamanship. Nobody asked the captain to search his feelings and report
+whether he felt seaworthy — a judgment that gets less reliable in precise proportion to how much
+water is coming aboard. The fix was **a mark on the outside of the hull**, where the harbourmaster
+could read it from the quay, in the rain, without asking anyone's opinion.
+
+An agent forty turns into a long session is a ship riding low. It does not feel overloaded. It
+reports excellent visibility, cites the file it read this morning with total confidence, and gets
+one clause of it backwards. What comes off the deck at that point is **slop** — and slop is a cargo
+problem with a load-line cause.
+
+Hence: **plimsoll + slop = `plimslop`.** The load line for the stuff you would rather not ship.
+
+The metaphor also fixes the thing a quality checker gets wrong. **A Plimsoll line never inspects
+the cargo.** It does not care whether the hold is full of grain, coal or pig iron, and it does not
+grade the workmanship of the stevedores. It cares how deep you are sitting. `plimslop` measures the
+water, not the goods: it will never tell you your work is bad — it cannot know — only that you are
+riding low enough that it might be, and that an empty hull is cheap and close.
+
+*(The line is also why British children do PE in plimsolls. The rubber band around a canvas shoe sat
+at just the height where, if the water got above it, you were wet. Same joke, smaller vessel.)*
+
 ## Why it exists
 
 Context-usage status lines for coding agents are a crowded field — over 700 of them. Tools that
