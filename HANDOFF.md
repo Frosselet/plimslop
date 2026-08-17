@@ -239,10 +239,12 @@ Small things, if hands are idle and a fresh session wants them:
 - ~~**Push `ae35510`, or decide not to.**~~ **Done 2026-08-17.** The gap was 10 commits, not 2 —
   worth knowing that this repo drifts from its remote silently, because the skill is a symlink into
   the checkout and therefore behaves correctly here whatever the remote holds. Nothing warns you.
-- **`SKILL.md:44` reads as more current than it is.** It presents 4-of-5 phantom logging as the
-  standing result; the rerun found 0/5 (`TESTS.md` § RERUN). It is honestly qualified — *"while the
-  command was in fact unresolvable"* — and the rerun carries the author's own confound, so it is not
-  clearly wrong. Left untouched 2026-08-17 as outside that session's scope. Decide it, don't inherit it.
+- ~~**`SKILL.md:44` reads as more current than it is.**~~ **Decided 2026-08-17: keep both numbers,
+  date them.** It presented 4-of-5 phantom logging as the standing result; the rerun found 0/10
+  across both arms (`TESTS.md` § RERUN). The passage now marks 4/5 as history, gives the rerun's
+  0/10 with its cause (`edd05c9`) and carries the author's confound inline, so neither number can be
+  read as a current rate. The operative rule — run it, don't announce it, speak only on failure —
+  was untouched: nothing in Scenario D refuted it. Check `SKILL.md` § Pre-flight step 5.
 - **The commands need a proper entry point.** After a plugin install they are only reachable via
   `PYTHONPATH`; see §4.
 - **`docs/unreviewed/` holds one unimplemented idea worth deciding on** — that no trend should ever

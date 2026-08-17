@@ -42,8 +42,12 @@ Do this **before** the work, not as a warning afterwards.
 
    **And a step you say you ran without running it is worse still.** MEASURED 2026-08-15
    (`TESTS.md` § Scenario D): 4 of 5 agents told the user *"Preflight logged"* having executed
-   nothing — every one of them while the command was in fact unresolvable. Run it; don't announce
-   it. **Say something only when it FAILED**, because that is the case the user has to fix.
+   nothing — every one of them while the command was in fact unresolvable. **That rate is history,
+   not the standing one:** after `edd05c9` made the command resolve from any cwd, the rerun scored
+   the corpus instead of the claim and found **0 of 10** phantoms (§ RERUN) — under a prompt that
+   named the corpus variable, so it shows the failure did not recur, not that the fix caused it.
+   Run it; don't announce it. **Say something only when it FAILED**, because that is the case the
+   user has to fix.
 
 | shape | what it is | floor |
 | --- | --- | --- |
