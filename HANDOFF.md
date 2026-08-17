@@ -2,8 +2,9 @@
 
 **Amended 2026-08-17, `ae35510`:** §4's § Delivering the gate bullet said "NOT DONE" and was wrong
 on all four items — see the disposition table there. Nothing else below was re-verified on that
-date, so treat the rest as dated 2026-08-15 and check it. **`ae35510` is committed, NOT pushed** —
-`github.com/Frosselet/plimslop` still serves the pre-amendment text.
+date, so treat the rest as dated 2026-08-15 and check it. **Pushed 2026-08-17** — the public repo
+had been 10 commits behind at `ad26067`, so until then it served a skill still containing both
+rules Scenario D refuted.
 
 Written at ~355K tokens, seven times this project's own originating floor. Written to the recipe in
 `skills/managing-context-budget/SKILL.md` §Handoff, which is the mitigation: **pointers can be
@@ -235,9 +236,9 @@ defensible at all?** Neither can be touched at this *n*.
 
 Small things, if hands are idle and a fresh session wants them:
 
-- **Push `ae35510`, or decide not to.** The skill is a symlink into this checkout, so the amendment
-  is already live on this machine while the public repo serves the old text. That divergence is the
-  argument for pushing; it is a decision, not an oversight.
+- ~~**Push `ae35510`, or decide not to.**~~ **Done 2026-08-17.** The gap was 10 commits, not 2 —
+  worth knowing that this repo drifts from its remote silently, because the skill is a symlink into
+  the checkout and therefore behaves correctly here whatever the remote holds. Nothing warns you.
 - **`SKILL.md:44` reads as more current than it is.** It presents 4-of-5 phantom logging as the
   standing result; the rerun found 0/5 (`TESTS.md` § RERUN). It is honestly qualified — *"while the
   command was in fact unresolvable"* — and the rerun carries the author's own confound, so it is not
