@@ -1,4 +1,9 @@
-# HANDOFF — plimslop, 2026-08-15
+# HANDOFF — plimslop, 2026-08-15 (amended 2026-08-17)
+
+**Amended 2026-08-17, `ae35510`:** §4's § Delivering the gate bullet said "NOT DONE" and was wrong
+on all four items — see the disposition table there. Nothing else below was re-verified on that
+date, so treat the rest as dated 2026-08-15 and check it. **`ae35510` is committed, NOT pushed** —
+`github.com/Frosselet/plimslop` still serves the pre-amendment text.
 
 Written at ~355K tokens, seven times this project's own originating floor. Written to the recipe in
 `skills/managing-context-budget/SKILL.md` §Handoff, which is the mitigation: **pointers can be
@@ -228,8 +233,15 @@ substitutes for, and the part most easily avoided by building more code. The fir
 eventually answer is the one the project exists for: **is 50K anywhere near right, and is 150K
 defensible at all?** Neither can be touched at this *n*.
 
-Two small things, if hands are idle and a fresh session wants them:
+Small things, if hands are idle and a fresh session wants them:
 
+- **Push `ae35510`, or decide not to.** The skill is a symlink into this checkout, so the amendment
+  is already live on this machine while the public repo serves the old text. That divergence is the
+  argument for pushing; it is a decision, not an oversight.
+- **`SKILL.md:44` reads as more current than it is.** It presents 4-of-5 phantom logging as the
+  standing result; the rerun found 0/5 (`TESTS.md` § RERUN). It is honestly qualified — *"while the
+  command was in fact unresolvable"* — and the rerun carries the author's own confound, so it is not
+  clearly wrong. Left untouched 2026-08-17 as outside that session's scope. Decide it, don't inherit it.
 - **The commands need a proper entry point.** After a plugin install they are only reachable via
   `PYTHONPATH`; see §4.
 - **`docs/unreviewed/` holds one unimplemented idea worth deciding on** — that no trend should ever
