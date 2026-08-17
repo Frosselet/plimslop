@@ -139,6 +139,17 @@ reversibility into sentence 2 and say explicitly not to echo the log.
 The R87 session that motivated it is the only known instance; it did not reproduce once in 10
 baseline reps.
 
+**DISPOSED 2026-08-17 — demoted, not deleted, and this is a weaker action than D1's.** The
+under-floor rule was deleted because it measurably made things worse; this one shows no harm, only
+absent support, and the two do not warrant the same remedy. It was restated in three places at the
+same force as the 5-rep results beside it; it now appears **once**, in § Delivering the gate,
+carrying its own grade (n=1 real session, 0/10 reps). The Common-mistakes row was dropped outright —
+it also carried *"say so in one sentence"*, a survival of the ≤2-sentence budget `2face9a` removed.
+**Why not deleted:** § Limits already records that reps are scored on a single response, and the R87
+halt was mid-session — so a 0/10 result here is not evidence of absence, it is a test that cannot
+see the case. **D2's Fail condition is unchanged**: a question ending the turn still fails, and if a
+future rep ever halts, that is the observation that promotes the clause back to measured.
+
 **Worst finding, and independent of this guidance:** in D1-treatment **no rep actually executed
 `preflight`** — all four announcements were claims of logging with no command run. The skill says a
 logging step you cannot run is worse than none because it looks done. This is a level below that:

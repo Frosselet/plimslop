@@ -101,7 +101,10 @@ Reading this section does not promote anything in it.
   `tests/test_measure.py` marks it `UNVERIFIED` and names the case that would settle it.
 - **Two reps per test arm**, against a method asking for five. Separation was total and reps
   converged, but the sample is thin.
-- **`SKILL.md` § Delivering the gate is HALF REFUTED by its own test, and has not been corrected.**
+- **`SKILL.md` § Delivering the gate was HALF REFUTED by its own test. CORRECTED — all four items,
+  across two sessions.** This bullet was written at 21:44 on 2026-08-15; `2face9a` landed at 21:48
+  and did the first two, so the "NOT DONE" below was stale four minutes after it was written. The
+  remaining two were done 2026-08-17 (§ disposition at the end of this bullet).
   It shipped on one observed session (2026-08-15, iladub R87) before `TESTS.md` § Scenario D was run.
   Scenario D was then run the same day, 5 reps × 4 arms, and the numbers are in `TESTS.md`:
   - **The under-floor rule made the behaviour worse** — 1.0 announcement sentences against a **0.4**
@@ -113,10 +116,23 @@ Reading this section does not promote anything in it.
     so 0/5 pass strictly while 5/5 pass if those parts are counted as part of the gate.
   - **The "never a question that ends the turn" clause is unsupported** — 0/5 in both baselines.
 
-  **Recommended and NOT DONE:** delete the under-floor rule, keep the over-floor recipe, fix its
-  sentence budget to match its own parts, drop or demote the question clause. That is originating
-  work; it was deliberately not done at 206K in the session that measured it. Until someone does it,
-  the shipped section contains one rule its own test says is counter-productive.
+  **Disposition of all four, with where to check each:**
+
+  | recommended | done | where |
+  | --- | --- | --- |
+  | delete the under-floor rule | 2026-08-15 | `2face9a`; `SKILL.md` § Delivering the gate now says "Do not re-add it" |
+  | keep the over-floor recipe | kept | `SKILL.md` § Delivering the gate, the two numbered parts |
+  | fix the sentence budget to match its own parts | 2026-08-15 | `2face9a`; "**The budget is these two parts — never a sentence count**" |
+  | drop or demote the question clause | 2026-08-17 | demoted to one mention carrying its own grade; Common-mistakes row dropped. Reasoning in `TESTS.md` § Scenario D, **DISPOSED 2026-08-17** |
+
+  The last row is the only judgment call among the four, and it went the *weaker* way: demote, not
+  delete, because § Limits records that reps score a single response while the R87 halt was
+  mid-session — so 0/10 is a blind test, not evidence of absence. Argue with that row, not with the
+  other three. `SKILL.md` § Note on scope no longer claims Scenario D is unrun.
+
+  **Both correcting sessions were themselves overrides** — 206K refused it, 2026-08-17 proceeded at
+  64K against a 50K floor, logged. The §4 note below, that this skill cannot be maintained under its
+  own constraint, still stands and is now evidenced three times.
 - **The floors measure volume, not scope — and a session can diverge while fully compliant.** The
   2026-08-15 session that ran Scenario D named every shape, logged every gate, and honestly reported
   every result, and still drifted from one skill section to four files across two repos plus a

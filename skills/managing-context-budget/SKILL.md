@@ -94,9 +94,11 @@ and measurably backfired, because guidance about visibility produces visibility 
 **Do not narrate the log.** The record on disk is what makes the gate visible — that is the whole
 design. Report the command only when it FAILED, which is the one case the user has to act on.
 
-Then continue in the same turn: write the handoff, or do the work. Do not stop to ask which is
-preferred. A gate that halts the loop to request permission to keep thinking has cost more than the
-crossing it prevented.
+Then continue in the same turn: write the handoff, or do the work.
+
+**Weaker than the rest of this section, and kept at that grade:** don't end the turn on a question
+about how to proceed. One real session did (2026-08-15, iladub R87); 0 of 10 pressure reps did
+without being told, and those reps cannot show a multi-turn halt (`TESTS.md` § Scenario D).
 
 **The budget is these two parts — never a sentence count.** A count was tried, could not fit the
 parts this section itself requires, and failed 5 of 5 agents who had done exactly the right thing.
@@ -155,7 +157,6 @@ Same path caveat as step 5 above.
 | Treating a plan you wrote this session as "an existing plan" and claiming *executing* | It is *originating* until it is written down and re-read. Shape follows the artefact, not the intention. |
 | Starting the spec because the deadline is today | The deadline is the reason to hand off early, not late. |
 | Opening the turn by naming the shape and the figure when nothing binds | Log it and start the work. Under the floor the gate is invisible. |
-| Halting to ask whether you may continue past a floor | Choose, say so in one sentence, act, and say it is reversible. The question costs more than the crossing. |
 | Delegating the spec or plan itself so the session stays under a floor | Delegate measurement; author the artefact yourself. A transcriber cannot catch a defect in reasoning it was handed. |
 
 ## Red flags
@@ -175,12 +176,18 @@ handoff was tested and did not fail: agents reliably opened the primary, caught 
 contradicted it, and escalated rather than resolving it alone. No resumption procedure ships here
 for that reason. If your own record later shows resumption failing, that is the point to add one.
 
-**§ Delivering the gate rests on weaker evidence than the rest, and on a different kind.** It comes
-from a failure observed **with** this skill loaded — one real session (2026-08-15, iladub R87), not a
+**§ Delivering the gate rests on a different kind of evidence from the rest.** It began with a
+failure observed **with** this skill loaded — one real session (2026-08-15, iladub R87), not a
 pressure scenario. The agent complied with every rule above and still damaged the loop: it announced
 the shape before doing any work, then halted mid-task to ask permission to continue. It was not
 misreading; step 1 and the paragraph after the tier table told it to *"say it out loud"* and produce
 *"a sentence someone can see"*. That is a **wrong-shape** failure rather than a discipline failure,
 so the remedy is written as a recipe — stating what the output IS — and not as a prohibition, which
-the superpowers:writing-skills guidance reports measurably backfiring on this class. **n=1, and the
-recipe is unrun**: `TESTS.md` § Scenario D is written and has no baseline and no result.
+the superpowers:writing-skills guidance reports measurably backfiring on this class.
+
+**It has since been run**, and half of what shipped did not survive (`TESTS.md` § Scenario D, 5 reps
+× 4 arms, plus a rerun scoring the corpus rather than the claim). The over-floor recipe held: 10.4 →
+3.8 sentences, 0/5 over-correcting, 5/5 writing a real handoff. Two rules did not, and both are now
+gone: an under-floor silence rule that raised announcements against its own control, and a
+≤2-sentence budget that contradicted the parts this section itself requires. The one clause still
+resting on the original n=1 is the question prohibition, marked as such where it appears.
