@@ -38,9 +38,11 @@ class PreflightTestCase(unittest.TestCase):
         with open(self.corpus) as fh:
             return [json.loads(l) for l in fh if l.strip()][-1]
 
-    def turn(self, session, ts, project="/p"):
+    def turn(self, session, ts, project="/p", tokens=100_000, baseline=10_000,
+             dropped=0):
         append({"type": "turn", "session": session, "project": project,
-                "tokens": 100_000, "baseline": 10_000, "ts": ts}, self.corpus)
+                "tokens": tokens, "baseline": baseline, "dropped": dropped,
+                "ts": ts}, self.corpus)
 
 
 class TheRecord(PreflightTestCase):
@@ -162,3 +164,104 @@ class NeverLosesTheRecord(PreflightTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GatesOnMeasuredWorkingTokens(PreflightTestCase):
+    """DECISION 2 (design §3): `--tokens` is whatever the caller typed, so the
+    gate measures instead of asking. The baseline is already on disk -- the
+    UserPromptSubmit hook writes it onto every `turn` record from the
+    transcript, and `_session` already looks that record up.
+
+    `--tokens` is kept, recorded verbatim as `declared_tokens`, and is
+    advisory whenever a measurement exists. Measured 2026-08-26: 152 of 152
+    preflight records in the live corpus join to a baseline.
+    """
+
+    def test_the_record_carries_the_measured_baseline_and_working_figure(self):
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=96_000, baseline=46_000)
+
+        self.run_preflight("--shape", "originating", "--tokens", "96000",
+                           "--decision", "proceed")
+
+        r = self.record()
+        self.assertEqual(r["baseline"], 46_000)
+        self.assertEqual(r["working"], 50_000)
+        self.assertEqual(r["measured_tokens"], 96_000)
+        self.assertTrue(r["measured"])
+
+    def test_tokens_still_records_exactly_what_the_caller_declared(self):
+        """Load-bearing for the ruling's own falsification test: the `tokens`
+        key must keep the meaning it had in every record already written, or
+        the pre/post comparison stops being like-for-like (design §3)."""
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=96_000, baseline=46_000)
+
+        self.run_preflight("--shape", "originating", "--tokens", "12345",
+                           "--decision", "proceed")
+
+        r = self.record()
+        self.assertEqual(r["tokens"], 12_345)
+        self.assertEqual(r["declared_tokens"], 12_345)
+
+    def test_a_large_baseline_with_little_work_is_not_an_override(self):
+        """The case the ruling exists for. Total 49,000 is under the floor
+        anyway; what matters is that 96,000 total against a 46,000 baseline is
+        NOT, and the old gate would have called it one."""
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=90_000, baseline=46_000)
+
+        _, text = self.run_preflight("--shape", "originating",
+                                     "--tokens", "90000", "--decision", "proceed")
+
+        self.assertEqual(self.record()["decision"], "proceed")
+        self.assertNotIn("OVERRIDE", text)
+
+    def test_work_above_the_baseline_is_still_an_override(self):
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=110_000, baseline=46_000)
+
+        _, text = self.run_preflight("--shape", "originating",
+                                     "--tokens", "110000", "--decision", "proceed")
+
+        self.assertEqual(self.record()["decision"], "overridden")
+        self.assertIn("OVERRIDE", text)
+
+    def test_a_caller_who_lowballs_the_figure_is_still_caught(self):
+        """The module's stated design: it does not take the caller's word.
+        Declaring 0 tokens does not buy a session out of the gate."""
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=110_000, baseline=46_000)
+
+        _, text = self.run_preflight("--shape", "originating", "--tokens", "0",
+                                     "--decision", "proceed")
+
+        self.assertEqual(self.record()["decision"], "overridden")
+
+    def test_compaction_is_carried_back_into_the_working_figure(self):
+        self.turn("s1", "2026-08-26T09:00:00Z", tokens=50_000, baseline=46_000,
+                  dropped=900_000)
+
+        self.run_preflight("--shape", "originating", "--tokens", "50000",
+                           "--decision", "proceed")
+
+        r = self.record()
+        self.assertEqual(r["working"], 904_000)
+        self.assertEqual(r["decision"], "overridden")
+
+
+class WhenNothingHasBeenMeasured(PreflightTestCase):
+    """Fallback: no turn record for this project means no baseline, so the
+    command gates on the declared figure exactly as it did before, and says so
+    rather than pretending to a measurement it does not have."""
+
+    def test_it_falls_back_to_the_declared_figure(self):
+        _, text = self.run_preflight("--shape", "originating",
+                                     "--tokens", "190000", "--decision", "proceed")
+
+        r = self.record()
+        self.assertEqual(r["decision"], "overridden")
+        self.assertIsNone(r["baseline"])
+        self.assertIsNone(r["working"])
+        self.assertFalse(r["measured"])
+
+    def test_it_says_the_figure_was_not_measured(self):
+        _, text = self.run_preflight("--shape", "originating",
+                                     "--tokens", "190000", "--decision", "proceed")
+
+        self.assertIn("unmeasured", text)

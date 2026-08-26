@@ -70,13 +70,19 @@ class AboveTheFloor(StopHookCase):
         self.assertTrue(self.blocked(out))
 
     def test_the_reason_names_the_figure_and_the_skill(self):
+        """The figure named is the WORKING one (R141). It used to assert the
+        raw 190,000 total; under the ruled unit that number is not what the
+        floor was compared against, and printing it would invite the reader to
+        check arithmetic that no longer applies. The baseline is printed beside
+        it so the total remains recoverable."""
         path = transcript(20_000, 190_000)
         self.addCleanup(os.unlink, path)
 
         _, out = self.run_hook({"session_id": "s", "transcript_path": path})
 
         reason = out["hookSpecificOutput"]["permissionDecisionReason"]
-        self.assertIn("190,000", reason)
+        self.assertIn("170,000", reason)      # 190,000 - 20,000 baseline
+        self.assertIn("20,000", reason)
         self.assertIn("managing-context-budget", reason)
 
     def test_warn_mode_does_not_block(self):
@@ -191,25 +197,91 @@ class RaisedOncePerSession(StopHookCase):
         self.assertEqual(records[0]["action"], "block")
 
 
-class NeverBlockIntoAnUnsatisfiableState(StopHookCase):
-    """§5: if the baseline alone exceeds the floor, blocking would refuse all
-    work from turn one and the tool gets uninstalled inside a day."""
+class GatesOnWorkingTokens(StopHookCase):
+    """The ruled unit: work accumulated ABOVE the session baseline.
 
-    def test_a_baseline_over_the_floor_degrades_to_a_warning(self):
-        path = transcript(60_000, 190_000)   # baseline 60,000 > 50,000 floor
+    iladub `docs/superpowers/2026-08-26-context-regime-ruling.md` §3, and
+    docs/superpowers/specs/2026-08-26-r141-working-tokens-design.md.
+    """
+
+    def test_a_large_baseline_with_little_work_done_is_allowed(self):
+        """The case the ruling exists for: iladub's own 46,243-token baseline
+        against a 50,000 floor left 3 of 482 recorded turns ever under it."""
+        path = transcript(46_243, 50_000)     # working = 3,757
         self.addCleanup(os.unlink, path)
 
         _, out = self.run_hook({"session_id": "s", "transcript_path": path})
 
-        self.assertFalse(self.blocked(out))
+        self.assertIsNone(out)
 
-    def test_it_says_why_rather_than_going_quiet(self):
+    def test_work_above_the_baseline_still_trips_the_floor(self):
+        path = transcript(46_243, 100_000)    # working = 53,757
+        self.addCleanup(os.unlink, path)
+
+        _, out = self.run_hook({"session_id": "s", "transcript_path": path})
+
+        self.assertTrue(self.blocked(out))
+
+    def test_the_message_quotes_the_working_figure_not_the_total(self):
+        path = transcript(46_243, 100_000)
+        self.addCleanup(os.unlink, path)
+
+        _, out = self.run_hook({"session_id": "s", "transcript_path": path})
+
+        reason = json.dumps(out)
+        self.assertIn("53,757", reason)
+
+
+class ABaselineOverTheFloorNoLongerDisablesTheGate(StopHookCase):
+    """SUPERSEDES `NeverBlockIntoAnUnsatisfiableState`.
+
+    That class encoded a real constraint -- "if the baseline alone exceeds the
+    floor, blocking would refuse all work from turn one" -- which was TRUE
+    while the floor was compared against total window occupancy. Under a
+    baseline-relative floor `working` is ~0 at turn one for ANY baseline, so no
+    baseline can make the gate unsatisfiable and the guard's message ("The gate
+    cannot be satisfied in this configuration") is now false.
+
+    Design §4: delete the branch rather than invent a replacement threshold.
+    """
+
+    def test_a_baseline_over_the_floor_still_blocks_once_work_is_done(self):
+        path = transcript(60_000, 190_000)   # baseline 60,000, working 130,000
+        self.addCleanup(os.unlink, path)
+
+        _, out = self.run_hook({"session_id": "s", "transcript_path": path})
+
+        self.assertTrue(self.blocked(out))
+
+    def test_it_no_longer_claims_the_gate_cannot_be_satisfied(self):
         path = transcript(60_000, 190_000)
         self.addCleanup(os.unlink, path)
 
         _, out = self.run_hook({"session_id": "s", "transcript_path": path})
 
-        self.assertIn("60,000", out["systemMessage"])
+        self.assertNotIn("cannot be satisfied", json.dumps(out))
+
+
+class CompactionDoesNotResetTheGate(StopHookCase):
+    """A compaction lowers `tokens` without undoing the reasoning spent."""
+
+    def test_a_compacted_session_is_judged_on_what_it_has_actually_done(self):
+        fh = tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False)
+        fh.write(json.dumps({"message": {"usage": {"input_tokens": 40_000}}}) + "\n")
+        fh.write(json.dumps({"message": {"usage": {"input_tokens": 900_000}}}) + "\n")
+        fh.write(json.dumps({"type": "system", "subtype": "compact_boundary",
+                             "compactMetadata": {"preTokens": 900_000,
+                                                 "postTokens": 45_000,
+                                                 "cumulativeDroppedTokens": 855_000}}) + "\n")
+        fh.write(json.dumps({"message": {"usage": {"input_tokens": 45_000}}}) + "\n")
+        fh.close()
+        self.addCleanup(os.unlink, fh.name)
+
+        # Naive tokens - baseline would read 5,000 and allow. The session has
+        # in fact done 860,000 tokens of work.
+        _, out = self.run_hook({"session_id": "s", "transcript_path": fh.name})
+
+        self.assertTrue(self.blocked(out))
 
 
 class Subagents(StopHookCase):

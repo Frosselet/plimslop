@@ -1,6 +1,6 @@
-"""The reader: three views over the corpus.
+"""The reader: four views over the corpus.
 
-    python3 -m plimslop.reader curve | baseline | tiers
+    python3 -m plimslop.reader curve | baseline | tiers | override
 
 Design §7. The behaviour that matters most here is the refusal: below a stated
 n the reader reports the count and declines to state a rate. The prior rule
@@ -44,9 +44,11 @@ def main(argv=None, stdout=sys.stdout, corpus_path=None):
     args = _parse(argv if argv is not None else sys.argv[1:])
     records = read(corpus_path if corpus_path is not None else default_path())
 
-    view = {"curve": _curve, "baseline": _baseline, "tiers": _tiers}.get(args.view)
+    view = {"curve": _curve, "baseline": _baseline, "tiers": _tiers,
+            "override": _override}.get(args.view)
     if view is None:
-        stdout.write("unknown view: %s (try curve, baseline or tiers)\n" % args.view)
+        stdout.write("unknown view: %s (try curve, baseline, tiers or "
+                     "override)\n" % args.view)
         return 2
 
     stdout.write(view(records) + "\n")
@@ -109,6 +111,109 @@ def _attribution(rework):
         exact, inferred, none, 100.0 * none / len(rework))
 
 
+def _override(records):
+    """How often the gate fired, and how often it was proceeded past anyway.
+
+    THE DEFINITION IS RECOVERED, NOT CHOSEN. The 2026-08-26 audit reported
+    54.2% overall (39/72) and 52.2% iladub-only (35/67). Scoring the corpus
+    truncated to the 681 lines it saw:
+
+        all/gated     39/118 = 33.1%
+        all/overfloor 39/72  = 54.2%   <- reproduces
+        all/allpf     39/149 = 26.2%
+
+    so the denominator is records that TRIPPED their floor, not all gated
+    records. Both headline figures reproduce exactly. Design §5.
+
+    Two units are scored over the same records. The working unit is available
+    for records written before R141 by joining to the session's `turn` record
+    -- measured 152 of 152 in the live corpus -- without which the ruling's
+    prediction would have no pre-change side to compare against.
+
+    Overriddenness is RECOMPUTED from `declared`, never read from the stored
+    `decision` field. It has to be: that field was written by comparing the
+    caller's figure to the floor under the OLD unit, so reusing it would score
+    the working unit with the total unit's answer. The cost is that the total
+    unit reads 38/74 here where the audit reported 39/72 -- 9 corpus lines have
+    been added since, and 2 records carry `declared: null`. The recomputation
+    is the like-for-like one; see the design §5.
+    """
+    preflights = [r for r in records if r.get("type") == "preflight"]
+    if not preflights:
+        return "override — the corpus is empty. Nothing has been measured yet."
+
+    baselines = {}
+    for record in records:
+        if record.get("type") == "turn" and isinstance(record.get("baseline"), int):
+            baselines.setdefault(record.get("session"), record["baseline"])
+
+    lines = ["override — how often the gate fired, and how often it was passed", ""]
+    for unit in ("total", "working"):
+        lines.append("  %s" % _rate_line(unit, preflights, baselines))
+
+    lines += ["",
+              "  Splitting the working unit by when the record was written, because",
+              "  re-scoring old decisions is NOT the same claim as observing new ones:"]
+    before = [r for r in preflights if not r.get("measured")]
+    after = [r for r in preflights if r.get("measured")]
+    lines.append("    counterfactual (written before R141)  %s"
+                 % _rate_line("working", before, baselines, bare=True))
+    lines.append("    observed       (written after R141)   %s"
+                 % _rate_line("working", after, baselines, bare=True))
+
+    lines += ["",
+              "  PREDICTION under test (ruling §5): the observed rate falls materially",
+              "  below 54%. If it stays flat, the unit was never the problem and the",
+              "  ruling is refuted by its own instrument.",
+              "  A `stop` decision counts as compliance, as the 54% figure counted it.",
+              "  Thresholds: state a rate at n>=%d — PROPOSED, not settled." % N_REPORT]
+    return "\n".join(lines)
+
+
+def _rate_line(unit, preflights, baselines, bare=False):
+    """One unit's rate, or a refusal. The refusal is the point of the reader."""
+    fired = [r for r in preflights if _fired(r, unit, baselines)]
+    label = "" if bare else "%-8s " % unit
+    if len(fired) < N_REPORT:
+        if not fired:
+            return "%sthe gate never fired in this unit (n=%d) — this shows nothing" % (
+                label, len(preflights))
+        return "%sn=%d — this shows nothing" % (label, len(fired))
+    overridden = [r for r in fired if r.get("declared") == "proceed"]
+    return "%s%d/%d = %.0f%% overridden" % (
+        label, len(overridden), len(fired), 100.0 * len(overridden) / len(fired))
+
+
+def _fired(record, unit, baselines):
+    """Whether the gate tripped for this record, in this unit."""
+    floor = FLOORS.get(record.get("shape"))
+    if floor is None:
+        return False                        # mechanical is ungated
+    figure = _figure(record, unit, baselines)
+    return figure is not None and figure >= floor
+
+
+def _figure(record, unit, baselines):
+    """The number this record is scored on.
+
+    `tokens` keeps the meaning it has always had — the caller's declared
+    figure — so the total unit is computed the same way on both sides of the
+    change. `measured_tokens` is preferred where it exists because it is the
+    same quantity, measured rather than typed.
+    """
+    if unit == "total":
+        measured = record.get("measured_tokens")
+        return measured if isinstance(measured, int) else record.get("tokens")
+    working = record.get("working")
+    if isinstance(working, int):
+        return working
+    tokens = record.get("tokens")
+    baseline = baselines.get(record.get("session"))
+    if not isinstance(tokens, int) or not isinstance(baseline, int):
+        return None                         # unjoinable: scored in neither
+    return max(0, tokens - baseline)
+
+
 def _baseline(records):
     """§6. What is in the window before anything is typed."""
     seen = {}
@@ -129,8 +234,9 @@ def _baseline(records):
         if figures[-1] >= floor:
             lines += ["", "  A baseline of %s exceeds the %s floor of %s."
                       % (format(figures[-1], ","), shape, format(floor, ",")),
-                      "  The gate cannot be satisfied in that configuration — reduce the",
-                      "  baseline or revise the tier. It is not a reason to refuse all work."]
+                      "  Since R141 the floor is compared against work ABOVE the baseline,",
+                      "  so this no longer makes the gate unsatisfiable — it costs window,",
+                      "  not allowance. Reducing it is worth doing; it is not urgent."]
     return "\n".join(lines)
 
 
@@ -168,7 +274,7 @@ def _within(tokens, low, high):
 
 def _parse(argv):
     parser = argparse.ArgumentParser(prog="plimslop.reader")
-    parser.add_argument("view", help="curve, baseline or tiers")
+    parser.add_argument("view", help="curve, baseline, tiers or override")
     return parser.parse_args(argv)
 
 
