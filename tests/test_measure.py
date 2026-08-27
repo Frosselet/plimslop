@@ -88,24 +88,32 @@ class ReadSessionCompaction(unittest.TestCase):
         self.assertTrue(session.compacted)
         self.assertEqual(session.dropped, 975625)
 
-    def test_dropped_takes_the_latest_cumulative_figure_rather_than_summing(self):
-        """The field is named cumulativeDroppedTokens, so the last record already
-        carries the running total and summing would double-count.
+    def test_dropped_is_derived_from_the_pre_post_pair_not_the_field(self):
+        """SUPERSEDES `test_dropped_takes_the_latest_cumulative_figure_rather
+        _than_summing`, which pinned "latest wins" on the strength of the
+        field's NAME and said so: its docstring read "UNVERIFIED: no transcript
+        available locally has more than one compaction."
 
-        UNVERIFIED: no transcript available locally has more than one compaction,
-        so this follows the field's name rather than an observation. A session
-        that compacts twice is the case that would settle it.
+        Measured 2026-08-26 across every transcript in ~/.claude/projects:
+        cumulativeDroppedTokens == preTokens - postTokens in 5 of 5, and 0
+        transcripts have compacted twice.
+
+        The claim under test is that the answer no longer DEPENDS on which
+        reading of "cumulative" is right. Here the fixture uses the cumulative
+        reading -- the second field carries the running total -- and the summed
+        pairs agree with it. See
+        docs/superpowers/specs/2026-08-26-r141-working-tokens-design.md §2.
         """
         path = write_transcript([
             usage(900000),
-            compaction(dropped=800000),
+            compaction(dropped=470000, pre=500000, post=30000),
             usage(700000),
-            compaction(dropped=1400000),
+            compaction(dropped=470000 + 560000, pre=600000, post=40000),
             usage(50000),
         ])
         self.addCleanup(os.unlink, path)
 
-        self.assertEqual(read_session(path).dropped, 1400000)
+        self.assertEqual(read_session(path).dropped, 470000 + 560000)
 
 
 class NeverBreaksTheTurn(unittest.TestCase):
@@ -149,3 +157,99 @@ class NeverBreaksTheTurn(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def boundary(pre, post, cumulative=None, omit_pair=False):
+    """A compact_boundary record carrying the preTokens/postTokens pair.
+
+    Shape and arithmetic verified against every compaction in
+    ~/.claude/projects on 2026-08-26: cumulativeDroppedTokens == preTokens -
+    postTokens in 5 of 5, and no transcript has ever compacted twice — so the
+    field's *cumulative* semantics are untested and are not relied on.
+    """
+    meta = {"cumulativeDroppedTokens": pre - post if cumulative is None
+            else cumulative}
+    if not omit_pair:
+        meta["preTokens"] = pre
+        meta["postTokens"] = post
+    return {"type": "system", "subtype": "compact_boundary",
+            "compactMetadata": meta}
+
+
+class SessionWorkingTokens(unittest.TestCase):
+    """The ruled unit: work accumulated ABOVE the session baseline.
+
+    iladub `docs/superpowers/2026-08-26-context-regime-ruling.md` §3.
+    """
+
+    def test_working_is_tokens_above_the_baseline(self):
+        path = write_transcript([usage(46_243), usage(96_243)])
+        self.addCleanup(os.unlink, path)
+
+        self.assertEqual(read_session(path).working, 50_000)
+
+    def test_a_fresh_session_has_done_no_work_however_large_the_baseline(self):
+        """The whole point of the re-denomination: a 46K baseline against a
+        50K floor was 92.5% consumed before a word was typed."""
+        path = write_transcript([usage(46_243)])
+        self.addCleanup(os.unlink, path)
+
+        self.assertEqual(read_session(path).working, 0)
+
+    def test_working_never_goes_negative(self):
+        """Clamped, matching the converted gauge. Wrong only conservatively."""
+        path = write_transcript([usage(40_000), usage(30_000)])
+        self.addCleanup(os.unlink, path)
+
+        self.assertEqual(read_session(path).working, 0)
+
+
+class SessionWorkingAcrossCompaction(unittest.TestCase):
+    """A compaction lowers `tokens` without undoing the reasoning spent, so a
+    naive subtraction falsely resets the floor. `working` must be CONTINUOUS
+    across the boundary."""
+
+    def test_compaction_does_not_reset_the_working_figure(self):
+        # baseline 40k, work climbs to 1,000,000 => working 960,000.
+        # Compaction drops to 60,000. Both figures include the baseline, so it
+        # cancels: working must still read 960,000, not 20,000.
+        path = write_transcript([
+            usage(40_000),
+            usage(1_000_000),
+            boundary(pre=1_000_000, post=60_000),
+            usage(60_000),
+        ])
+        self.addCleanup(os.unlink, path)
+
+        session = read_session(path)
+        self.assertTrue(session.compacted)
+        self.assertEqual(session.working, 960_000)
+
+    def test_dropped_is_summed_over_boundaries_not_taken_from_the_last(self):
+        """No transcript has ever compacted twice, so `cumulative` is untested.
+        Summing (preTokens - postTokens) per boundary is correct whether or not
+        the field accumulates, which removes the dependency on that premise.
+
+        Here each boundary's field carries only ITS OWN drop -- the reading that
+        'latest wins' would silently undercount."""
+        path = write_transcript([
+            usage(10_000),
+            boundary(pre=500_000, post=30_000, cumulative=470_000),
+            boundary(pre=600_000, post=40_000, cumulative=560_000),
+            usage(40_000),
+        ])
+        self.addCleanup(os.unlink, path)
+
+        session = read_session(path)
+        self.assertEqual(session.dropped, 470_000 + 560_000)
+        self.assertEqual(session.working, 40_000 + 1_030_000 - 10_000)
+
+    def test_falls_back_to_the_cumulative_field_when_the_pair_is_absent(self):
+        path = write_transcript([
+            usage(10_000),
+            boundary(pre=500_000, post=30_000, omit_pair=True),
+            usage(30_000),
+        ])
+        self.addCleanup(os.unlink, path)
+
+        self.assertEqual(read_session(path).dropped, 470_000)

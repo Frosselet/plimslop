@@ -1,5 +1,9 @@
 """Turn a measured session into what the hook emits.
 
+The figure compared against a floor is `working` -- tokens above the session
+baseline, with compaction added back. See
+docs/superpowers/specs/2026-08-26-r141-working-tokens-design.md.
+
 Two audiences, deliberately separated:
 
 - the human, via `systemMessage` — never enters model context, so it is free
@@ -16,11 +20,11 @@ SKILL = "managing-context-budget"
 
 def build_output(session, window):
     """The dict the hook writes to stdout for this session."""
-    human = f"plimslop {session.tokens:,}"
+    human = f"plimslop {session.working:,} working / {session.tokens:,}"
     if window:
         human += f" ({100.0 * session.tokens / window:.0f}%)"
 
-    if session.tokens < LOWEST_FLOOR and not session.compacted:
+    if session.working < LOWEST_FLOOR and not session.compacted:
         return {"systemMessage": human}
 
     return {"systemMessage": human,
@@ -30,20 +34,14 @@ def build_output(session, window):
 
 
 def _for_the_model(session):
-    lines = [f"CONTEXT {session.tokens:,} tokens (absolute).",
+    lines = [f"CONTEXT {session.working:,} tokens of work above a "
+             f"{session.baseline:,}-token baseline.",
              f"Originating floor is {FLOORS['originating']:,}; "
-             f"executing floor is {FLOORS['executing']:,}.",
+             f"executing floor is {FLOORS['executing']:,}. Both are compared "
+             "against the working figure, not the total.",
              f"Before starting work, invoke the {SKILL} skill: name the task "
              "shape, compare against its floor, and hand off rather than start "
              "if you are over it."]
-
-    if session.baseline >= LOWEST_FLOOR:
-        lines.append(
-            f"NOTE: this session's baseline is {session.baseline:,} tokens — "
-            f"already at or above the {LOWEST_FLOOR:,} originating floor before "
-            "any conversation. You cannot originate in this configuration. "
-            "Reduce the baseline (unused MCP servers, CLAUDE.md) or revise the "
-            "tier; do not simply proceed.")
 
     if session.compacted:
         lines.append(

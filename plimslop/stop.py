@@ -17,8 +17,11 @@ Three constraints, all load-bearing (design §9):
   just as fast; then nothing is measured at all. Both are recorded, and the
   record says which, because an override nobody can count is a gate nobody can
   evaluate.
-- **Never block into an unsatisfiable state.** If the baseline alone exceeds
-  the floor, blocking would refuse every turn from the first one.
+- **Never block into an unsatisfiable state.** Guaranteed by the unit rather
+  than by a guard: the floor is compared against `working` -- tokens above the
+  session baseline -- which is ~0 at turn one for any baseline whatsoever. The
+  explicit `baseline >= LOWEST_FLOOR` branch this once needed was deleted with
+  R141; see docs/superpowers/specs/2026-08-26-r141-working-tokens-design.md §4.
 - **Never block a subagent.** Its context is separate; delegation is the
   remedy, not the offence.
 
@@ -55,22 +58,16 @@ def decide(session, raised_before, is_subagent, modes):
     """Return (action, reason). Action is 'allow', 'warn' or 'block'."""
     if is_subagent:
         return "allow", ""
-    if session.tokens < LOWEST_FLOOR:
+    if session.working < LOWEST_FLOOR:
         return "allow", ""
     if raised_before:
         return "allow", ""      # said once per session, in any mode
 
-    over = (f"This session is at {session.tokens:,} absolute tokens, past the "
-            f"{LOWEST_FLOOR:,} originating floor. Invoke the {SKILL} skill: name "
-            "the shape of what you are about to do, and if it is originating "
-            "work, write the handoff instead of starting it.")
-
-    if session.baseline >= LOWEST_FLOOR:
-        return "warn", (
-            f"Baseline is {session.baseline:,} tokens, already at or above the "
-            f"{LOWEST_FLOOR:,} originating floor before any conversation. The gate "
-            "cannot be satisfied in this configuration, so it is not enforced. "
-            "Reduce the baseline or revise the tier.")
+    over = (f"This session has done {session.working:,} tokens of work above its "
+            f"{session.baseline:,}-token baseline, past the {LOWEST_FLOOR:,} "
+            f"originating floor. Invoke the {SKILL} skill: name the shape of what "
+            "you are about to do, and if it is originating work, write the handoff "
+            "instead of starting it.")
 
     mode = modes.get("originating", "block")
     if mode == "off":
@@ -138,6 +135,7 @@ def _record(path, session_id, session, action):
     try:
         append({"type": "block", "action": action, "session": session_id,
                 "tokens": session.tokens, "baseline": session.baseline,
+                "working": session.working, "dropped": session.dropped,
                 "floor": LOWEST_FLOOR}, path)
     except Exception:
         pass

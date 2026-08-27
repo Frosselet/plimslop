@@ -87,6 +87,7 @@ Two things worth knowing before you do that:
 plimslop reader curve      # rework against tokens at production
 plimslop reader baseline   # what is in the window before you type
 plimslop reader tiers      # the floors, and what the corpus can say
+plimslop reader override   # how often the gate fired, and how often it was passed
 ```
 
 **Expect it to refuse.** Below a stated *n* it prints the count and declines to state a rate at
@@ -108,6 +109,12 @@ plimslop preflight --shape originating --tokens 190000 --decision proceed
 declared value is kept beside it. A model can rationalise past a threshold; it cannot rationalise
 the arithmetic out of the log. If the override rate turns out high, that is evidence the tiers are
 wrong, not that the user is undisciplined.
+
+**`--tokens` is advisory.** Since R141 the gate does not take the caller's word for the figure
+either: it recovers the session's measured `baseline` and `tokens` from the latest `turn` record
+this project wrote, and compares the floor against **working tokens**. What you typed is kept as
+`declared_tokens`, and the summary says `unmeasured` when no turn has been recorded and it has had
+to fall back to it.
 
 ## Marking rework
 
@@ -176,14 +183,20 @@ negative: it does not ship a threshold it cannot defend.**
 
 Three further things fall out of the design that the survey found nobody shipping:
 
-- **Baseline is measured and reported separately.** Your MCP server schemas, `CLAUDE.md` and tool
-  definitions are in the window before you type anything. If that baseline already exceeds a floor,
-  the tool says so plainly rather than silently refusing all work.
+- **Baseline is measured and subtracted, not just reported.** Your MCP server schemas, `CLAUDE.md`
+  and tool definitions are in the window before you type anything. The floor is compared against
+  **work above that baseline** — `working = tokens + dropped − baseline` — so a heavy setup costs
+  you window, never allowance. (Until 2026-08-26 the floor was compared against total occupancy,
+  and the tool merely *announced* an over-floor baseline as unsatisfiable. On the repo this was
+  built for that meant a 46,243-token baseline against a 50,000 floor: 3 of 482 recorded turns
+  ever started under it, and the override rate sat flat at 54% for three weeks — a gate
+  unsatisfiable by construction rather than flouted.)
 - **Unused weight is named.** *"14 MCP servers connected, 9 never invoked in 40 sessions"* is a
   thirty-second decision, and it needs no token estimate to be actionable.
 - **Auto-compaction does not reset a floor.** Compaction is a lossy summary of the session written
   by the tired session — a handoff with none of the discipline. It changes the number without
-  undoing the damage.
+  undoing the damage, so the discarded tokens are added back into the working figure and the gate
+  goes on counting them.
 
 ## Non-goals
 
@@ -211,7 +224,7 @@ in the design document for the three inherited ideas and what they were called.
 | `LICENSE` | Apache-2.0, canonical text. See § Licensing for the prose split |
 | `HANDOFF.md` | **current state — read this first.** Where things stand, what is unverified, what is next |
 | `BRIEF.md` | history: the originating handoff, plus the naming check and prior-art sweep |
-| `plimslop/` | the code — two hooks, measurement, tiers, corpus, the marker and pre-flight commands, the reader. 102 tests |
+| `plimslop/` | the code — two hooks, measurement, tiers, corpus, the marker and pre-flight commands, the reader. 134 tests |
 | `tests/` | `python3 -m unittest discover -s tests -t .` |
 | `docs/unreviewed/` | quarantined, unapproved material. See `HANDOFF.md` §4 |
 | `docs/superpowers/specs/…-design.md` | the design, approved section by section |

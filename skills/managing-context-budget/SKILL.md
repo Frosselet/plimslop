@@ -20,8 +20,18 @@ Do this **before** the work, not as a warning afterwards.
 
 1. **Name the shape** — in one line: *originating*, *executing*, or *mechanical*. How much of this
    reaches the user is § Delivering the gate, and it is usually none of it.
-2. **Read the figure** — the absolute token count reported for this session. If no figure has been
-   reported, you are below every floor; proceed.
+2. **Read the figure** — the **working** token count for this session: absolute tokens *above the
+   session baseline*, with anything compaction discarded added back. The status line renders it as
+   `NNk/50k`, and `plimslop preflight` measures it for itself. If no figure has been reported, you
+   are below every floor; proceed.
+
+   The baseline — system prompt, tool schemas, MCP instructions, CLAUDE.md — is not work you did
+   and not allowance you spend. Ruled 2026-08-26, because the alternative was measurably
+   unsatisfiable: a 46,243-token baseline against a 50,000 floor left 3 of 482 recorded turns ever
+   under it, and the override rate sat flat at 54% for three weeks. **This rests on an assumption
+   that is NOT established** — that baseline tokens cost multi-step reasoning less than working
+   tokens do. The published anchors below measure *total* context. If the assumption is false, the
+   subtraction is wrong.
 3. **Compare to the floor for that shape.**
 4. **At or above the floor: do not start.** Write the handoff, and say the work needs a fresh
    session.
@@ -55,6 +65,8 @@ Do this **before** the work, not as a warning afterwards.
 | **executing** | implementing from a plan that already exists in writing | **150K** |
 | **mechanical** | reading, searching, answering, a named edit, running tests | ungated |
 
+All three are **working** tokens — above the baseline, compaction added back.
+
 **These numbers are asserted, not proven.** 50K is anchored on published long-context results
 (NoLiMa: 11 of 13 models below half their baseline at 32K; Chroma: decline begins immediately
 rather than at a cliff). **150K has no source behind it** — it is an interpolation between a
@@ -75,7 +87,8 @@ the artefact gets reviewed. Delegating authorship lowers the number without prot
 protects, and it is harder to spot than an override because nothing gets logged.
 
 **Compaction does not reset a floor.** It lowers the number without undoing the damage — it is a
-lossy summary of this session written by this session. Treat crossing a compaction as a stronger
+lossy summary of this session written by this session. The working figure carries the discarded
+tokens back in, so the gate goes on counting them; treat crossing a compaction as a stronger
 reason to hand off than crossing a threshold.
 
 ## Delivering the gate
@@ -158,6 +171,7 @@ Same path caveat as step 5 above.
 | Writing "confirmed", "settled", "verified facts", "do not re-investigate", "don't re-derive" | Say where the evidence lives so it can be reopened. Finality you have not earned is the failure mode this section exists for. |
 | Summarising the primaries into the handoff so the next session "won't have to re-read" | Point at them. Saving the next session a file read is not worth handing them a claim they cannot check. |
 | Reading the percentage instead of the token count | 19% of 1M is 190K, which is past the originating floor by nearly 4×. |
+| Reading the total instead of the working figure | The floor is denominated above the baseline. A fresh session at 46K total has done 0 work. |
 | Treating a plan you wrote this session as "an existing plan" and claiming *executing* | It is *originating* until it is written down and re-read. Shape follows the artefact, not the intention. |
 | Starting the spec because the deadline is today | The deadline is the reason to hand off early, not late. |
 | Opening the turn by naming the shape and the figure when nothing binds | Log it and start the work. Under the floor the gate is invisible. |

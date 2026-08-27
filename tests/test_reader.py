@@ -179,3 +179,99 @@ class NeverBreaks(ReaderTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class OverrideView(ReaderTestCase):
+    """DECISION 4 (design §5). The ruling's own falsifying instrument was
+    computed by no code in either repo: `grep -n preflight plimslop/reader.py`
+    had no hits, and the 54% came from an audit run by hand.
+
+    The definition was RECOVERED, not chosen: scoring the corpus truncated to
+    the 681 lines the audit saw reproduces its headline figures exactly --
+    39/72 = 54.2% overall and 35/67 = 52.2% iladub-only -- only under
+    `overridden / (gated records at or over their floor)`.
+    """
+
+    def preflights(self, count, tokens, shape="originating",
+                   declared="proceed", working=None, baseline=None,
+                   session="s", measured=None):
+        for i in range(count):
+            r = {"type": "preflight", "shape": shape, "tokens": tokens,
+                 "floor": 50_000, "declared": declared, "project": "/p",
+                 "session": "%s%d" % (session, i)}
+            if measured is not None:
+                r.update({"measured": measured, "working": working,
+                          "baseline": baseline, "measured_tokens": tokens})
+            append(r, self.corpus)
+
+    def test_an_empty_corpus_says_so_rather_than_dividing_by_zero(self):
+        code, text = self.view("override")
+        self.assertEqual(code, 0)
+        self.assertIn("nothing", text.lower())
+
+    def test_it_refuses_to_state_a_rate_below_the_reporting_threshold(self):
+        self.preflights(3, 90_000)
+        _, text = self.view("override")
+        self.assertIn("shows nothing", text)
+
+    def test_the_rate_is_overridden_over_records_that_tripped_the_floor(self):
+        """Denominator is records AT OR OVER the floor, not all gated records:
+        of the times the gate actually fired, how often work proceeded anyway."""
+        self.preflights(15, 90_000, declared="proceed")   # fired, overridden
+        self.preflights(5, 90_000, declared="handoff", session="h")  # fired, complied
+        self.preflights(30, 10_000, declared="proceed", session="u")  # never fired
+        _, text = self.view("override")
+        self.assertIn("15/20", text)
+        self.assertIn("75%", text)
+
+    def test_a_stop_decision_counts_as_compliance_not_override(self):
+        """Carried deliberately from the audit so the comparison stays
+        like-for-like: `stop` is accepted, undocumented, and was counted as
+        compliance in the 54% figure (design §6)."""
+        self.preflights(10, 90_000, declared="proceed")
+        self.preflights(10, 90_000, declared="stop", session="s2")
+        _, text = self.view("override")
+        self.assertIn("10/20", text)
+
+    def test_mechanical_records_are_ungated_and_never_counted(self):
+        self.preflights(25, 900_000, shape="mechanical")
+        _, text = self.view("override")
+        self.assertIn("shows nothing", text)
+
+    def test_it_scores_both_units_over_the_same_records(self):
+        """The working unit is recoverable for records written BEFORE the
+        change, by joining to the session's turn record -- measured 152 of 152
+        in the live corpus. Without that the ruling's prediction has no
+        pre-change side to compare against."""
+        self.turns(1, 96_000, session="s0", baseline=46_000)
+        self.preflights(25, 96_000, declared="proceed")
+
+        _, text = self.view("override")
+
+        self.assertIn("total", text)
+        self.assertIn("working", text)
+        # total unit: 96,000 >= 50,000, fires. working: 50,000 >= 50,000, fires.
+        self.assertIn("25/25", text)
+
+    def test_the_working_unit_can_disagree_with_the_total_unit(self):
+        self.turns(1, 90_000, session="s0", baseline=46_000)
+        self.preflights(25, 90_000, declared="proceed")
+
+        _, text = self.view("override")
+
+        # total: 90,000 trips the floor 25 times. working: 44,000 never does.
+        self.assertIn("25/25", text)
+        self.assertIn("the gate never fired", text)
+
+    def test_it_separates_records_written_after_the_change_from_before(self):
+        """§5 predicts a change in BEHAVIOUR. Re-scoring old decisions in the
+        new unit is a counterfactual, not the prediction coming true, and the
+        two must not be added together."""
+        self.preflights(25, 90_000, declared="proceed")
+        self.preflights(25, 90_000, declared="handoff", session="n",
+                        measured=True, working=60_000, baseline=30_000)
+
+        _, text = self.view("override")
+
+        self.assertIn("counterfactual", text.lower())
+        self.assertIn("observed", text.lower())
