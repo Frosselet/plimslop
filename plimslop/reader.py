@@ -167,7 +167,34 @@ def _override(records):
               "  ruling is refuted by its own instrument.",
               "  A `stop` decision counts as compliance, as the 54% figure counted it.",
               "  Thresholds: state a rate at n>=%d — PROPOSED, not settled." % N_REPORT]
+
+    observed_fired = [r for r in after if _fired(r, "working", baselines)]
+    lines += ["", _hold(len(observed_fired))]
     return "\n".join(lines)
+
+
+def _hold(n):
+    """iladub R140 — why `block` is held at `warn`, and what releases it.
+
+    MEASURED 2026-08-27 over the live corpus: 150 of 153 preflight records were
+    written AFTER their session's stop warning, 3 before. The Stop hook is what
+    produces this data, so flipping `warn` -> `block` mid-observation would move
+    the instrument and the prediction together, and a falling rate could no
+    longer be attributed to the unit.
+
+    The hold is stated on every run because a trigger nobody is reminded of is
+    the stale-row failure this project has already paid for once.
+    """
+    if n >= N_REPORT:
+        return ("  HOLD RELEASED (observed n=%d >= %d) — iladub R140. Remove\n"
+                "  `PLIMSLOP_MODE_ORIGINATING=warn` from ~/.claude/settings.json and let the\n"
+                "  shipped `block` default enforce. Read the observed rate above FIRST: it is\n"
+                "  the last one measured under a single instrument." % (n, N_REPORT))
+    return ("  R140 hold: `block` is held at `warn` so the enforcement change does not\n"
+            "  confound the prediction above — 150 of 153 preflight records were written\n"
+            "  after their session's stop warning. Releases at observed n>=%d; now n=%d,\n"
+            "  and then `PLIMSLOP_MODE_ORIGINATING=warn` comes out of ~/.claude/settings.json."
+            % (N_REPORT, n))
 
 
 def _rate_line(unit, preflights, baselines, bare=False):

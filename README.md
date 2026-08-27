@@ -81,6 +81,31 @@ Two things worth knowing before you do that:
   has always read `PLIMSLOP_MODE_` (`plimslop/stop.py:47`), so the documented variable did nothing
   and the gate stayed in `block` for anyone who followed the README to soften it.)
 
+### The originating gate is held at `warn` — deliberate, dated, and with a trigger (2026-08-27)
+
+The shipped default is `block`. On the author's machine it is downgraded, by
+`PLIMSLOP_MODE_ORIGINATING=warn` set inline on the `Stop` hook in `~/.claude/settings.json`. That is
+a **standing setting made on purpose**, not a leftover — and this section exists because iladub's
+R140 required it to be either removed or written down.
+
+**Why it is held.** `reader override` measures how often the gate is proceeded past, and that rate is
+the falsifying instrument for the 2026-08-26 ruling that re-denominated the floor on working tokens
+(iladub R141, §5: *the observed rate falls materially below 54%*). MEASURED 2026-08-27 over the live
+corpus: **150 of 153 preflight records were written AFTER their session's stop warning, 3 before.**
+The `Stop` hook is what produces this data. Flipping `warn` → `block` now would move the instrument
+and the prediction at the same time, and a falling rate could no longer be attributed to the unit —
+which is the exact misattribution the counterfactual/observed split was built to prevent.
+
+**What releases it.** The observed arm reaching `n>=20` — `reader.py`'s own reporting threshold.
+`reader override` prints the hold and the current count on **every run**, and switches to
+`HOLD RELEASED` naming this variable when the count is met. The trigger is not left to memory,
+because a documented-and-forgotten condition is the stale-row failure this project has already paid
+for once.
+
+**What is being given up while it is held.** `block` has never once enforced: every block-type record
+ever written ran as `warn` (44/44 at the 2026-08-26 measurement; `reader override` counts the current
+figure). It is an untested path in a shipped default, and that is a real cost, accepted knowingly.
+
 ## Reading the corpus
 
 ```

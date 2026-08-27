@@ -275,3 +275,38 @@ class OverrideView(ReaderTestCase):
 
         self.assertIn("counterfactual", text.lower())
         self.assertIn("observed", text.lower())
+
+    def test_it_holds_R140_and_names_the_count_that_would_release_it(self):
+        """iladub R140 holds `block` at `warn` so the enforcement change does
+        not confound §5's prediction. A trigger nobody is reminded of is the
+        stale-row failure this project already paid for once, so the reader
+        states the hold and the count on every run."""
+        # The counterfactual arm must FIRE in the working unit here, or the
+        # two candidate denominators are numerically identical and this test
+        # cannot tell them apart. Joining a turn record is what makes an
+        # unmeasured record scorable in the working unit.
+        self.preflights(25, 90_000, declared="proceed")
+        for i in range(25):
+            append({"type": "turn", "session": "s%d" % i, "baseline": 30_000},
+                   self.corpus)
+        self.preflights(3, 90_000, declared="proceed", session="n",
+                        measured=True, working=60_000, baseline=30_000)
+
+        _, text = self.view("override")
+
+        self.assertIn("R140", text)
+        self.assertIn("PLIMSLOP_MODE_ORIGINATING", text)
+        self.assertIn("n=3", text)
+        self.assertNotIn("HOLD RELEASED", text)
+
+    def test_it_announces_the_release_once_the_observed_arm_is_reportable(self):
+        """The trigger fires on the OBSERVED arm's fired count, not on the
+        corpus size: the counterfactual arm can never release the hold."""
+        self.preflights(25, 90_000, declared="proceed")
+        self.preflights(20, 90_000, declared="proceed", session="n",
+                        measured=True, working=60_000, baseline=30_000)
+
+        _, text = self.view("override")
+
+        self.assertIn("HOLD RELEASED", text)
+        self.assertIn("PLIMSLOP_MODE_ORIGINATING", text)
