@@ -17,8 +17,9 @@ threshold; it cannot rationalise the arithmetic out of the log.
 **Nor for the figure** (R141). `--tokens` is whatever the caller typed, so the
 floor is compared against a MEASURED `working` figure -- tokens above the
 session baseline, compaction added back -- recovered from the latest `turn`
-record for this project, which the UserPromptSubmit hook writes from the
-transcript. `--tokens` is recorded verbatim as `declared_tokens` and, when a
+record THIS SESSION wrote, which the UserPromptSubmit hook writes from the
+transcript. Which session that is comes from `CLAUDE_CODE_SESSION_ID`; see
+`_session` for why reading it is a defect repair and not a convenience. `--tokens` is recorded verbatim as `declared_tokens` and, when a
 measurement exists, is advisory. The `tokens` key keeps exactly the meaning it
 has always had, because the ruling's own falsification test needs the pre- and
 post-change corpus to be scored the same way. See
@@ -33,10 +34,11 @@ from plimslop.corpus import append, default_path, read
 from plimslop.tiers import FLOORS
 
 
-def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None):
+def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None, env=None):
     """Record one pre-flight decision. Returns an exit code."""
     args = _parse(argv if argv is not None else sys.argv[1:])
     project = cwd or os.getcwd()
+    env = os.environ if env is None else env
     path = corpus_path if corpus_path is not None else default_path()
 
     if args.shape not in ("originating", "executing", "mechanical"):
@@ -45,7 +47,7 @@ def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None):
         return 2
 
     corpus = read(path)
-    session, source = _session(args.session, project, corpus)
+    session, source = _session(args.session, project, corpus, env)
     measured = _measure(session, project, corpus)
 
     floor = FLOORS.get(args.shape)                  # mechanical is ungated
@@ -54,7 +56,7 @@ def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None):
     decision = "overridden" if (over and args.decision == "proceed") else args.decision
 
     record = {"type": "preflight", "shape": args.shape, "tokens": args.tokens,
-              "declared_tokens": args.tokens,
+              "declared_tokens": args.tokens, "unit": "working",
               "floor": floor, "decision": decision, "declared": args.decision,
               "session": session, "session_source": source,
               "measured": measured is not None,
@@ -72,12 +74,35 @@ def main(argv=None, stdout=sys.stdout, corpus_path=None, cwd=None):
     return 0
 
 
-def _session(given, project, corpus):
-    """Which session this decision belongs to. A pre-flight record that cannot
-    be tied to a session cannot contribute to a rate, so an unnamed one falls
-    back to the latest turn seen in this project — and says it inferred that."""
+def _session(given, project, corpus, env):
+    """Which session this decision belongs to, in order of authority:
+    `--session`, then the id the harness names, then the project's latest turn.
+
+    THE ENV STEP IS A DEFECT REPAIR, measured 2026-08-29 in iladub: a pre-flight
+    run in a session created by `/clear` reported `working: 270265, measured:
+    true` against a context that was near zero, because it inherited the figure
+    of the session that had just been cleared. `hook.py` writes no turn record
+    while a fresh transcript carries no usage line yet, so the corpus held
+    nothing for the new session and project-inference reached back one session.
+
+    `CLAUDE_CODE_SESSION_ID` is the id the harness is running under, and it is
+    the same id `hook.py` records from `session_id` — verified against a live
+    corpus, env `acdcb012-…` matching that session's own turn records. Keying on
+    it makes EVERY cross-session inheritance impossible at once: a `/clear` is
+    not detectable and does not need to be, and two sessions open in one project
+    stop borrowing from each other as a side effect.
+
+    A session with no turn of its own is then `measured: false` — the truth, and
+    the conservative direction: an unmeasured gate falls back to the declared
+    figure, which on the first turn of a session can only over-state the work
+    done above the baseline, never under-state it.
+
+    Inference survives underneath, for a caller outside Claude Code."""
     if given:
         return given, "given"
+    named = env.get("CLAUDE_CODE_SESSION_ID")
+    if named:
+        return named, "env"
     turns = sorted((r for r in corpus
                     if r.get("type") == "turn" and r.get("project") == project),
                    key=lambda r: r.get("ts") or "")

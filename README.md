@@ -137,9 +137,19 @@ wrong, not that the user is undisciplined.
 
 **`--tokens` is advisory.** Since R141 the gate does not take the caller's word for the figure
 either: it recovers the session's measured `baseline` and `tokens` from the latest `turn` record
-this project wrote, and compares the floor against **working tokens**. What you typed is kept as
-`declared_tokens`, and the summary says `unmeasured` when no turn has been recorded and it has had
-to fall back to it.
+**that session** wrote, and compares the floor against **working tokens**. What you typed is kept
+as `declared_tokens`, and the summary says `unmeasured` when no turn has been recorded and it has
+had to fall back to it.
+
+**Which session that is comes from `CLAUDE_CODE_SESSION_ID`**, the id the harness is running under
+and the same one the hook records — `--session` still overrides it, and a caller outside Claude
+Code falls back to inferring one from the project's latest turn. That env step is a defect repair,
+measured 2026-08-29: with only project-level inference, a pre-flight run in a session created by
+`/clear` reported `working: 270265, measured: true` against a context that was near zero, because
+a fresh session has recorded no turn yet and inference reached back into the session just cleared.
+Keying on the id the harness names ends every cross-session inheritance at once, `/clear` and two
+sessions open in one project alike. `plimslop reader override` reports how many records already in
+the corpus carry the signature of the old behaviour.
 
 ## Marking rework
 

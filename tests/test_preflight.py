@@ -29,9 +29,13 @@ class PreflightTestCase(unittest.TestCase):
     def setUp(self):
         self.corpus = os.path.join(tempfile.mkdtemp(), "corpus.jsonl")
 
-    def run_preflight(self, *argv, cwd="/p"):
+    def run_preflight(self, *argv, cwd="/p", env=None):
+        """`env` defaults to EMPTY, not to `os.environ`: this suite runs inside
+        Claude Code, which exports CLAUDE_CODE_SESSION_ID, and a test that reads
+        the ambient environment measures the machine it runs on."""
         out = io.StringIO()
-        code = main(list(argv), out, corpus_path=self.corpus, cwd=cwd)
+        code = main(list(argv), out, corpus_path=self.corpus, cwd=cwd,
+                    env={} if env is None else env)
         return code, out.getvalue()
 
     def record(self):
@@ -265,3 +269,110 @@ class WhenNothingHasBeenMeasured(PreflightTestCase):
                                      "--tokens", "190000", "--decision", "proceed")
 
         self.assertIn("unmeasured", text)
+
+
+class ItNeverInheritsAnotherSessionsFigure(PreflightTestCase):
+    """MEASURED 2026-08-29, iladub: a pre-flight run in a session created by
+    `/clear` reported `working: 270265, measured: true` against a context that
+    was near zero. The figure belonged to the CLEARED session.
+
+    The chain: `hook.py` writes no turn record while a fresh transcript has no
+    usage line yet, so the corpus has nothing for the new session; `_session`
+    then inferred the session from the project's latest turn — the one just
+    cleared — and `_measure` read its figure and stamped it `measured`.
+
+    Claude Code names the running session in `CLAUDE_CODE_SESSION_ID`, and it is
+    the same id the hook records (verified: env `acdcb012-…` == the session on
+    that session's own turn records). Taking it removes the inheritance at the
+    root: a session that has recorded no turn is *unmeasured*, which is the
+    truth, rather than borrowing a neighbour's number.
+
+    A `/clear` is not detectable and does not need to be: keying on the session
+    the harness names makes every cross-session inheritance impossible at once,
+    including two sessions open in one project.
+    """
+
+    ENV = {"CLAUDE_CODE_SESSION_ID": "fresh"}
+
+    def test_the_running_session_is_taken_from_the_environment(self):
+        self.run_preflight("--shape", "executing", "--tokens", "10000",
+                           "--decision", "proceed", env=self.ENV)
+
+        r = self.record()
+        self.assertEqual(r["session"], "fresh")
+        self.assertEqual(r["session_source"], "env")
+
+    def test_a_cleared_sessions_figure_is_not_inherited(self):
+        self.turn("cleared", ts="2026-08-29T08:41:19Z",
+                  tokens=321_645, baseline=51_380)      # 270,265 working
+
+        _, text = self.run_preflight("--shape", "originating", "--tokens",
+                                     "3000", "--decision", "proceed",
+                                     env=self.ENV)
+
+        r = self.record()
+        self.assertEqual(r["session"], "fresh")
+        self.assertFalse(r["measured"])
+        self.assertIsNone(r["working"])
+        self.assertEqual(r["decision"], "proceed")      # NOT overridden
+        self.assertIn("unmeasured", text)
+
+    def test_it_measures_the_running_session_and_not_the_louder_neighbour(self):
+        """The NEIGHBOUR's turn is the most recent one, so project-inference
+        would take it — this is the second session open in the same project,
+        the case that outlives `/clear` and is fixed by the same key. Written
+        the other way round it passed with the repair deleted, because
+        inference happened to land on the right session anyway."""
+        self.turn("fresh", ts="2026-08-29T08:56:12Z",
+                  tokens=94_615, baseline=51_487)       # 43,128 working
+        self.turn("neighbour", ts="2026-08-29T09:10:00Z",
+                  tokens=321_645, baseline=51_380)      # 270,265 working
+
+        self.run_preflight("--shape", "originating", "--tokens", "3000",
+                           "--decision", "proceed", env=self.ENV)
+
+        r = self.record()
+        self.assertEqual(r["working"], 43_128)
+        self.assertEqual(r["decision"], "proceed")      # under the 50K floor
+
+    def test_an_explicit_session_still_beats_the_environment(self):
+        self.run_preflight("--shape", "executing", "--tokens", "10000",
+                           "--decision", "proceed", "--session", "s9",
+                           env=self.ENV)
+
+        r = self.record()
+        self.assertEqual(r["session"], "s9")
+        self.assertEqual(r["session_source"], "given")
+
+    def test_without_the_variable_it_still_infers_from_the_project(self):
+        self.turn("current", ts="2026-08-15T14:00:00Z")
+
+        self.run_preflight("--shape", "executing", "--tokens", "10000",
+                           "--decision", "proceed", env={})
+
+        r = self.record()
+        self.assertEqual(r["session"], "current")
+        self.assertEqual(r["session_source"], "inferred")
+
+
+class TheRecordSaysWhichInstrumentWroteIt(PreflightTestCase):
+    """`measured` was doing double duty: the reader splits the override rate
+    into "written before R141" and "written after" on that flag alone
+    (`reader._override`). Once a fresh session is legitimately unmeasured, a
+    post-R141 record would be filed as pre-R141 — silently, and in exactly the
+    arm the 2026-08-26 prediction is tested on. The instrument names itself."""
+
+    def test_every_record_names_the_unit_it_was_gated_in(self):
+        self.run_preflight("--shape", "originating", "--tokens", "40000",
+                           "--decision", "proceed")
+
+        self.assertEqual(self.record()["unit"], "working")
+
+    def test_it_says_so_even_when_no_measurement_was_available(self):
+        self.run_preflight("--shape", "originating", "--tokens", "40000",
+                           "--decision", "proceed",
+                           env={"CLAUDE_CODE_SESSION_ID": "fresh"})
+
+        r = self.record()
+        self.assertFalse(r["measured"])
+        self.assertEqual(r["unit"], "working")

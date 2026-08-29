@@ -13,10 +13,11 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from plimslop.stop import main
+from plimslop.stop import _modes, main
 
 
 def transcript(*usages):
@@ -326,3 +327,51 @@ class NeverBreaksTheTurn(StopHookCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TheDocumentedEscapeHatchActuallyWorks(StopHookCase):
+    """`PLIMSLOP_MODE_<SHAPE>` is the control the README tells a reader to set
+    to soften the gate, and it is what currently holds `originating` at `warn`
+    while the 2026-08-26 prediction is under observation (iladub R140).
+
+    Nothing tested that it does anything. `test_docs_match_code` compares the
+    NAME in the prose against the name in the code — which is what caught the
+    `DEADWEIGHT_` leftover — but a variable can be spelled correctly on both
+    sides and still be read into a value nobody applies. That failure is silent
+    in the worst direction: the gate the reader is trying to soften keeps
+    blocking, and a blocking gate gets uninstalled.
+
+    These go through `main` with `modes=None`, which is the path the real hook
+    takes; the shape-specific tests above all inject `modes` and so never
+    exercise the environment at all.
+    """
+
+    def over_the_floor(self):
+        path = transcript(20_000, 190_000)       # 170,000 working, originating
+        self.addCleanup(os.unlink, path)
+        return {"session_id": "s", "transcript_path": path}
+
+    def test_warn_in_the_environment_stops_the_gate_blocking(self):
+        with mock.patch.dict(os.environ,
+                             {"PLIMSLOP_MODE_ORIGINATING": "warn"}):
+            _, out = self.run_hook(self.over_the_floor())
+
+        self.assertFalse(self.blocked(out))
+
+    def test_the_shipped_default_blocks_when_the_environment_is_silent(self):
+        with mock.patch.dict(os.environ, {}, clear=True):
+            _, out = self.run_hook(self.over_the_floor())
+
+        self.assertTrue(self.blocked(out))
+
+    def test_a_value_that_is_not_a_mode_is_ignored_rather_than_obeyed(self):
+        """Asserted against `_modes` and not through the hook ON PURPOSE.
+        `decide` treats every mode that is not `off` or `warn` as `block`, so a
+        junk value fails safe and is INVISIBLE end-to-end: written that way this
+        test passed with the `in ("block", "warn", "off")` guard deleted, which
+        is a test pinning nothing. The guard's whole effect is keeping the mode
+        vocabulary closed at the boundary that reads it, so that is where it is
+        pinned."""
+        with mock.patch.dict(os.environ,
+                             {"PLIMSLOP_MODE_ORIGINATING": "yes"}):
+            self.assertEqual(_modes()["originating"], "block")
