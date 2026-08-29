@@ -310,3 +310,139 @@ class OverrideView(ReaderTestCase):
 
         self.assertIn("HOLD RELEASED", text)
         self.assertIn("PLIMSLOP_MODE_ORIGINATING", text)
+
+
+class TheArmSplitFollowsTheInstrumentNotTheMeasurement(ReaderTestCase):
+    """`measured` was doing double duty. `_override` split "written before
+    R141" from "written after" on that flag alone, which was sound only while
+    every post-R141 record carried a measurement.
+
+    It no longer is. Since the `/clear` repair (preflight `_session`), a session
+    that has recorded no turn of its own is legitimately `measured: false` — and
+    under the old split each such record was filed into the counterfactual arm,
+    silently, in exactly the arm the 2026-08-26 prediction is read from.
+
+    The record now names its own instrument (`unit: "working"`), and the split
+    reads that. Records predating the field keep their old classification.
+    """
+
+    def preflight(self, **fields):
+        record = {"type": "preflight", "shape": "originating", "tokens": 90_000,
+                  "floor": 50_000, "declared": "proceed", "project": "/p"}
+        record.update(fields)
+        append(record, self.corpus)
+
+    def turn_for(self, session):
+        """One turn in `session`, which is what makes an unmeasured pre-flight
+        joinable in the working unit: 90,000 - 30,000 = 60,000, over the floor."""
+        append({"type": "turn", "session": session, "project": "/p",
+                "tokens": 90_000, "baseline": 30_000,
+                "ts": "2026-08-15T10:00:00Z"}, self.corpus)
+
+    def test_an_unmeasured_record_from_the_new_instrument_is_observed(self):
+        """The joinable case, which is the one that bites: `baselines` is built
+        at READ time from every turn record, so a pre-flight run on the first
+        turn of a session — unmeasured, because the session had recorded no turn
+        yet — becomes scoreable in the working unit as soon as that session
+        goes on to record one. It fires, and it must fire in the arm whose
+        instrument wrote it."""
+        for i in range(25):
+            self.preflight(session="fresh%d" % i, unit="working",
+                           measured=False, working=None, baseline=None)
+            self.turn_for("fresh%d" % i)
+
+        _, text = self.view("override")
+
+        observed = [l for l in text.splitlines() if "observed" in l][0]
+        counterfactual = [l for l in text.splitlines()
+                          if "counterfactual" in l][0]
+        self.assertIn("25", observed)
+        self.assertIn("shows nothing", counterfactual)
+
+    def test_a_record_written_before_the_field_existed_keeps_its_arm(self):
+        for i in range(25):
+            self.preflight(session="old%d" % i)          # no `unit`, no `measured`
+            self.turn_for("old%d" % i)
+
+        _, text = self.view("override")
+
+        counterfactual = [l for l in text.splitlines()
+                          if "counterfactual" in l][0]
+        self.assertIn("25", counterfactual)
+
+
+class ItNamesTheRecordsThatMayCarryAnotherSessionsFigure(ReaderTestCase):
+    """The `/clear` repair fixes records written from now on. It cannot fix the
+    ones already in the corpus, and those sit in the arm the 2026-08-26
+    prediction is read from — one of them measured at 270,265 working tokens
+    against a session whose real context was near zero.
+
+    THE DETECTOR IS THE `/clear` SIGNATURE, not merely `inferred`. Inference was
+    the normal mode and is usually right: measured over the live corpus, 159 of
+    the pre-flights inferred their session and flagging all of them reported
+    "47 of 49", which says only that the corpus is old. What distinguishes an
+    inherited figure is that the inferred session **recorded no turn after the
+    decision** — a session that was cleared is dead and never speaks again,
+    where a live session goes on writing turns. That cut reports 11 of 49, and
+    3 of the 6 records in the observed arm.
+
+    A session whose last turn IS the one before the decision produces a false
+    positive; the count is stated with the data kept, never used to drop it.
+    """
+
+    def preflight(self, ts, session, source="inferred", **fields):
+        record = {"type": "preflight", "shape": "originating", "tokens": 90_000,
+                  "floor": 50_000, "declared": "proceed", "project": "/p",
+                  "unit": "working", "measured": True, "working": 90_000,
+                  "baseline": 30_000, "measured_tokens": 120_000,
+                  "session": session, "session_source": source, "ts": ts}
+        record.update(fields)
+        append(record, self.corpus)
+
+    def turn_at(self, ts, session):
+        append({"type": "turn", "session": session, "project": "/p",
+                "tokens": 90_000, "baseline": 30_000, "ts": ts}, self.corpus)
+
+    def test_a_session_that_never_spoke_again_is_counted(self):
+        for i in range(20):                      # sound: each session continues
+            self.preflight("2026-08-20T10:00:00Z", "live%d" % i)
+            self.turn_at("2026-08-20T11:00:00Z", "live%d" % i)
+        for i in range(3):                       # the /clear signature
+            self.preflight("2026-08-20T10:00:00Z", "dead%d" % i)
+            self.turn_at("2026-08-20T09:00:00Z", "dead%d" % i)
+
+        _, text = self.view("override")
+
+        self.assertIn("3 of 23", text)
+
+    def test_a_session_that_kept_recording_turns_is_not_counted(self):
+        for i in range(20):
+            self.preflight("2026-08-20T10:00:00Z", "live%d" % i)
+            self.turn_at("2026-08-20T11:00:00Z", "live%d" % i)
+
+        _, text = self.view("override")
+
+        self.assertNotIn("may carry", text)
+
+    def test_a_session_the_record_names_itself_is_never_counted(self):
+        for i in range(20):
+            self.preflight("2026-08-20T10:00:00Z", "env%d" % i, source="env")
+            self.turn_at("2026-08-20T09:00:00Z", "env%d" % i)
+
+        _, text = self.view("override")
+
+        self.assertNotIn("may carry", text)
+
+    def test_it_names_how_many_are_in_the_arm_under_test(self):
+        """The load-bearing count: the observed arm is what the 2026-08-26
+        prediction is read from, and a suspect record there is not a footnote."""
+        for i in range(20):
+            self.preflight("2026-08-20T10:00:00Z", "live%d" % i)
+            self.turn_at("2026-08-20T11:00:00Z", "live%d" % i)
+        for i in range(3):
+            self.preflight("2026-08-20T10:00:00Z", "dead%d" % i)
+            self.turn_at("2026-08-20T09:00:00Z", "dead%d" % i)
+
+        _, text = self.view("override")
+
+        self.assertIn("3 of them are in the observed arm", text)

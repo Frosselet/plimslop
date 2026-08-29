@@ -154,8 +154,8 @@ def _override(records):
     lines += ["",
               "  Splitting the working unit by when the record was written, because",
               "  re-scoring old decisions is NOT the same claim as observing new ones:"]
-    before = [r for r in preflights if not r.get("measured")]
-    after = [r for r in preflights if r.get("measured")]
+    before = [r for r in preflights if not _post_change(r)]
+    after = [r for r in preflights if _post_change(r)]
     lines.append("    counterfactual (written before R141)  %s"
                  % _rate_line("working", before, baselines, bare=True))
     lines.append("    observed       (written after R141)   %s"
@@ -169,8 +169,81 @@ def _override(records):
               "  Thresholds: state a rate at n>=%d — PROPOSED, not settled." % N_REPORT]
 
     observed_fired = [r for r in after if _fired(r, "working", baselines)]
+    lines += _inherited(records, preflights, baselines, observed_fired)
     lines += ["", _hold(len(observed_fired))]
     return "\n".join(lines)
+
+
+def _inherited(records, preflights, baselines, observed_fired):
+    """How many scored records may carry a figure that is not their session's.
+
+    Before the `/clear` repair, a pre-flight with no `--session` inferred one
+    from the project's latest turn, so a session that had recorded no turn of
+    its own -- every session created by `/clear`, on its first turns -- was
+    measured with the PREVIOUS session's figure and stamped `measured: true`.
+    Measured 2026-08-29 in iladub: `working: 270265` against a near-zero
+    context, and two days apart a pair of records carrying byte-identical
+    figures from one stale turn.
+
+    THE DETECTOR IS THE SIGNATURE, NOT THE INFERENCE. Inference was the normal
+    mode and is usually right: 159 pre-flights in the live corpus inferred their
+    session, and flagging all of them reported "47 of 49", which says only that
+    the corpus predates the repair. What marks an inherited figure is that the
+    inferred session RECORDED NO TURN AFTER THE DECISION -- a cleared session is
+    dead and never speaks again, where a live session goes on writing turns.
+    That cut reports 11 of 49, and 3 of the 6 in the observed arm.
+
+    A session whose last turn happens to be the one before the decision is a
+    false positive. So the count is stated and the data kept: dropping it would
+    silently shrink the arm, and silence would let the ruling be judged on it.
+    """
+    spoke_after = {}
+    for record in records:
+        if record.get("type") != "turn":
+            continue
+        session = record.get("session")
+        ts = record.get("ts") or ""
+        if ts > spoke_after.get(session, ""):
+            spoke_after[session] = ts
+
+    def suspect(record):
+        if record.get("session_source") != "inferred":
+            return False
+        return spoke_after.get(record.get("session"), "") <= (record.get("ts") or "")
+
+    fired = [r for r in preflights if _fired(r, "working", baselines)]
+    flagged = [r for r in fired if suspect(r)]
+    if not flagged:
+        return []
+    in_arm = len([r for r in observed_fired if suspect(r)])
+    lines = ["",
+             "  %d of %d scored records may carry a figure that is not their own:"
+             % (len(flagged), len(fired)),
+             "  the session was inferred AND recorded no turn after the decision,",
+             "  which is the /clear signature. Kept, not dropped — see reader source."]
+    if in_arm:
+        lines.append("  %d of them are in the observed arm above, which is the arm the"
+                     % in_arm)
+        lines.append("  prediction is read from.")
+    return lines
+
+
+def _post_change(record):
+    """Whether this record was written by the post-R141 instrument.
+
+    Read from the record's own `unit` field, and only from `measured` for
+    records written before that field existed. `measured` was standing in for
+    both facts, which held only while every post-R141 record carried a
+    measurement. Since the `/clear` repair (preflight `_session`) a session that
+    has recorded no turn is legitimately `measured: false`, and such a record
+    becomes scoreable in the working unit as soon as its session records a turn
+    -- `baselines` is built at read time. Splitting on `measured` would file it
+    as a counterfactual: a decision taken under the new instrument, counted as a
+    re-scoring of an old one, inside the arm the prediction is read from.
+    """
+    if "unit" in record:
+        return record["unit"] == "working"
+    return bool(record.get("measured"))
 
 
 def _hold(n):
